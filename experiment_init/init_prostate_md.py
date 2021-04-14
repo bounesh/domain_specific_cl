@@ -38,7 +38,9 @@ base_dir='/usr/bmicnas01/data-biwi-01/krishnch/projects/self_tr/contrastive_lr/g
 srt_dir='/usr/bmicnas01/data-biwi-01/krishnch/projects/self_tr/contrastive_lr/git_may24/'
 
 #Path to data in original dimensions in default resolution
-data_path_tr='/usr/bmicnas01/data-biwi-01/krishnch/datasets/prostate_md/orig/'
+# data_path_tr='/usr/bmicnas01/data-biwi-01/krishnch/datasets/prostate_md/orig/'
+data_path_tr='D:\Dokumenti\Faks\Magisterij\LGM\domain_specific_cl\data_prostate'
+
 
 #Path to data in cropped dimensions in target resolution (saved apriori)
 data_path_tr_cropped='/usr/bmicnas01/data-biwi-01/krishnch/datasets/prostate_md/orig_cropped/'
