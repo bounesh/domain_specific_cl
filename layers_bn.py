@@ -41,7 +41,7 @@ class layersObj:
         if(scope_name==None):
             scope_name=str(name)+'_bn'
 
-        with tf.variable_scope(name):
+        with tf.compat.v1.variable_scope(name):
 
             weights = self.get_weight_variable(weight_shape, name='W',acti_type=acti_type)
             if(use_bias==True):
@@ -51,9 +51,9 @@ class layersObj:
                 op_layer = tf.nn.atrous_conv2d(ip_layer, filters=weights, rate=dilation_factor, padding=padding, name=name)
             else:
                 if(use_conv_stride==False):
-                    op_layer = tf.nn.conv2d(ip_layer, filter=weights, strides=strides_augm, padding=padding)
+                    op_layer = tf.nn.conv2d(ip_layer, filters=weights, strides=strides_augm, padding=padding)
                 else:
-                    op_layer = tf.nn.conv2d(input=ip_layer, filter=weights, strides=[1, 2, 2, 1], padding=padding)
+                    op_layer = tf.nn.conv2d(input=ip_layer, filters=weights, strides=[1, 2, 2, 1], padding=padding)
 
             #Add bias
             if(use_bias==True):
@@ -108,14 +108,14 @@ class layersObj:
         if(scope_name==None):
             scope_name=str(name)+'_bn'
 
-        with tf.variable_scope(name):
+        with tf.compat.v1.variable_scope(name):
 
             weights = self.get_weight_variable(weight_shape, name='W',acti_type=acti_type)
             if(use_bias==True):
                 biases = self.get_bias_variable(bias_shape, name='b', init_bias_val=bias_init)
 
             op_layer = tf.nn.conv2d_transpose(ip_layer,
-                                        filter=weights,
+                                        filters=weights,
                                         output_shape=output_shape,
                                         strides=strides_augm,
                                         padding=padding)
@@ -158,7 +158,7 @@ class layersObj:
         new_height = int(round(prev_height * scale_factor))
         new_width = int(round(prev_width * scale_factor))
 
-        op = tf.image.resize_images(images=ip_layer,size=[new_height,new_width],method=method)
+        op = tf.compat.v1.image.resize_images(images=ip_layer,size=[new_height,new_width],method=method)
 
         return op
 
@@ -185,7 +185,7 @@ class layersObj:
             normalized: Batch normalised activation
         '''
 
-        with tf.variable_scope(name):
+        with tf.compat.v1.variable_scope(name):
 
             n_out = ip_layer.get_shape().as_list()[-1]
             tensor_dim = len(ip_layer.get_shape().as_list())
@@ -205,9 +205,9 @@ class layersObj:
 
             init_beta = tf.constant(0.0, shape=[n_out], dtype=tf.float32)
             init_gamma = tf.constant(1.0, shape=[n_out], dtype=tf.float32)
-            beta = tf.get_variable(name='beta', dtype=tf.float32, initializer=init_beta, regularizer=None,
+            beta = tf.compat.v1.get_variable(name='beta', dtype=tf.float32, initializer=init_beta, regularizer=None,
                                    trainable=True)
-            gamma = tf.get_variable(name='gamma', dtype=tf.float32, initializer=init_gamma, regularizer=None,
+            gamma = tf.compat.v1.get_variable(name='gamma', dtype=tf.float32, initializer=init_gamma, regularizer=None,
                                     trainable=True)
 
             batch_mean, batch_var = tf.nn.moments(ip_layer, moments_over_axes, name='moments')
@@ -241,7 +241,7 @@ class layersObj:
         nInputUnits=shape[0]*shape[1]*shape[2]
         stddev_val = 1. / math.sqrt( nInputUnits/2 )
         #http://cs231n.github.io/neural-networks-2/#init
-        return tf.Variable(tf.random_normal(shape, stddev=stddev_val, seed=1),name=name)
+        return tf.Variable(tf.compat.v1.random_normal(shape, stddev=stddev_val, seed=1),name=name)
 
     def get_bias_variable(self,shape, name=None, init_bias_val=0.0):
         """

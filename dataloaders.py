@@ -151,8 +151,8 @@ class dataloaderObj:
         #Load Prostate data images and its labels with pixel dimensions
         print('PZ Decathlon')
         for study_id in study_id_list:
-            img_path=str(self.data_path_tr)+str(study_id)+'/img.nii.gz'
-            seg_path=str(self.data_path_tr)+str(study_id)+'/mask.nii.gz'
+            img_path=str(self.data_path_tr)+'/imagesTr/prostate_'+str(study_id)+'.nii.gz'
+            seg_path=str(self.data_path_tr)+'/labelsTr/prostate_'+str(study_id)+'.nii.gz'
 
         # Load the 3D image
         image_data_test_load = nib.load(img_path)

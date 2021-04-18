@@ -1,7 +1,7 @@
 import os
 
 import tensorflow as tf
-config=tf.ConfigProto()
+config=tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth=True
 config.allow_soft_placement=True
 
@@ -142,7 +142,7 @@ pathlib.Path(best_model_dir).mkdir(parents=True, exist_ok=True)
 
 ######################################
 # Define Encoder(e) + g_1 network graph for pre-training
-tf.reset_default_graph()
+tf.compat.v1.reset_default_graph()
 ae = model.encoder_pretrain_net(learn_rate_seg=parse_config.lr_reg,temp_fac=parse_config.temp_fac,\
                         global_loss_exp_no=parse_config.global_loss_exp_no,n_parts=parse_config.n_parts)
 
@@ -152,18 +152,18 @@ ae_rc = model.brit_cont_net(batch_size=cfg.batch_size_ft)
 
 ######################################
 #writer for train summary
-train_writer = tf.summary.FileWriter(logs_path)
+train_writer = tf.compat.v1.summary.FileWriter(logs_path)
 #writer for dice score and val summary
 #dsc_writer = tf.summary.FileWriter(logs_path)
-val_sum_writer = tf.summary.FileWriter(logs_path)
+val_sum_writer = tf.compat.v1.summary.FileWriter(logs_path)
 ######################################
 
 ######################################
 # Define session and saver
-sess = tf.Session(config=config)
-sess.run(tf.global_variables_initializer())
+sess = tf.compat.v1.Session(config=config)
+sess.run(tf.compat.v1.global_variables_initializer())
 #saver = tf.train.Saver(tf.trainable_variables(),max_to_keep=2)
-saver = tf.train.Saver(max_to_keep=2)
+saver = tf.compat.v1.train.Saver(max_to_keep=2)
 ######################################
 
 ######################################

@@ -1,7 +1,7 @@
 import os
 
 import tensorflow as tf
-config=tf.ConfigProto()
+config=tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth=True
 config.allow_soft_placement=True
 
@@ -152,7 +152,7 @@ print('save dir ',save_dir)
 
 ######################################
 # Define Encoder(e) + g_1 network graph used for pre-training. We load the pre-trained weights of encoder (e)
-tf.reset_default_graph()
+tf.compat.v1.reset_default_graph()
 ae = model.encoder_pretrain_net(learn_rate_seg=parse_config.lr_reg,temp_fac=parse_config.temp_fac,\
                         global_loss_exp_no=parse_config.global_loss_exp_no,n_parts=parse_config.n_parts)
 ######################################
@@ -164,14 +164,14 @@ mp_best=get_chkpt_file(save_dir)
 print('load last step model from pre-training')
 print('mp_best',mp_best)
 
-saver_rnet = tf.train.Saver()
-sess_rnet = tf.Session(config=config)
+saver_rnet = tf.compat.v1.train.Saver()
+sess_rnet = tf.compat.v1.Session(config=config)
 saver_rnet.restore(sess_rnet, mp_best)
 print("Model restored")
 
 #get all trainable variable names and their values
 print('Loading trainable vars')
-variables_names = [v.name for v in tf.trainable_variables()]
+variables_names = [v.name for v in tf.compat.v1.trainable_variables()]
 var_values = sess_rnet.run(variables_names)
 sess_rnet.close()
 print('loaded encoder weight values from pre-trained model with global contrastive loss')
@@ -216,7 +216,7 @@ print('save dir ',save_dir)
 ######################################
 
 ######################################
-tf.reset_default_graph()
+tf.compat.v1.reset_default_graph()
 # Segmentation Network
 ae = model.seg_unet(learn_rate_seg=parse_config.lr_seg,dsc_loss=parse_config.dsc_loss,en_1hot=parse_config.en_1hot,mtask_en=0)
 
@@ -240,25 +240,25 @@ pathlib.Path(best_model_dir).mkdir(parents=True, exist_ok=True)
 
 ######################################
 #writer for train summary
-train_writer = tf.summary.FileWriter(logs_path)
+train_writer = tf.compat.v1.summary.FileWriter(logs_path)
 #writer for dice score and val summary
 #dsc_writer = tf.summary.FileWriter(logs_path)
-val_sum_writer = tf.summary.FileWriter(logs_path)
+val_sum_writer = tf.compat.v1.summary.FileWriter(logs_path)
 ######################################
 
 ######################################
 # Define session and saver
-sess = tf.Session(config=config)
-sess.run(tf.global_variables_initializer())
+sess = tf.compat.v1.Session(config=config)
+sess.run(tf.compat.v1.global_variables_initializer())
 #saver = tf.train.Saver(tf.trainable_variables(),max_to_keep=2)
-saver = tf.train.Saver(max_to_keep=2)
+saver = tf.compat.v1.train.Saver(max_to_keep=2)
 ######################################
 
 ######################################
 # assign values to all trainable ops of network
 assign_op=[]
 print('Init of trainable vars')
-for new_var in tf.trainable_variables():
+for new_var in tf.compat.v1.trainable_variables():
     for var, var_val in zip(variables_names, var_values):
         if (str(var) == str(new_var.name) and ('reg_' not in str(new_var.name))):
             #print('match name',new_var.name,var)
@@ -380,8 +380,8 @@ sess.close()
 mp_best=get_max_chkpt_file(save_dir)
 print('mp_best',mp_best)
 
-saver = tf.train.Saver()
-sess = tf.Session(config=config)
+saver = tf.compat.v1.train.Saver()
+sess = tf.compat.v1.Session(config=config)
 saver.restore(sess, mp_best)
 print("Model restored")
 
@@ -391,5 +391,5 @@ save_dir_tmp=save_dir+'/test_set_predictions/'
 f1_util.test_set_predictions(test_list,sess,ae,dt,orig_img_dt,save_dir_tmp)
 
 sess.close()
-tf.reset_default_graph()
+tf.compat.v1.reset_default_graph()
 ######################################
