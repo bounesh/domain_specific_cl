@@ -21,7 +21,7 @@ from utils import *
 import argparse
 parser = argparse.ArgumentParser()
 #data set type
-parser.add_argument('--dataset', type=str, default='acdc', choices=['acdc','prostate_md','mmwhs'])
+parser.add_argument('--dataset', type=str, default='acdc', choices=['acdc','prostate_md','mmwhs','us'])
 #no of training images
 parser.add_argument('--no_of_tr_imgs', type=str, default='tr52', choices=['tr52','tr22','tr10'])
 #combination of training images
@@ -106,7 +106,7 @@ parser.add_argument('--no_of_neg_local_regions', type=int, default=5)
 parser.add_argument('--no_of_neg_regs_override', type=int, default=4)
 
 #batch_size value for local_loss
-parser.add_argument('--bt_size', type=int,default=12)
+parser.add_argument('--bt_size', type=int,default=8)
 
 #no of iterations to run
 parser.add_argument('--n_iter', type=int, default=10001)
@@ -126,6 +126,10 @@ elif parse_config.dataset == 'prostate_md':
     print('load prostate_md configs')
     import experiment_init.init_prostate_md as cfg
     import experiment_init.data_cfg_prostate_md as data_list
+elif parse_config.dataset == 'us':
+    print('load us configs')
+    import experiment_init.init_us as cfg
+    import experiment_init.data_cfg_us as data_list
 else:
     raise ValueError(parse_config.dataset)
 
@@ -145,6 +149,9 @@ elif parse_config.dataset == 'mmwhs':
 elif parse_config.dataset == 'prostate_md':
     print('set prostate_md orig img dataloader handle')
     orig_img_dt=dt.load_prostate_imgs_md
+elif parse_config.dataset == 'us':
+    print('set us orig img dataloader handle')
+    orig_img_dt=dt.load_us_imgs
 
 #  load model object
 from models import modelObj

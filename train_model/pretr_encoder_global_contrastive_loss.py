@@ -21,7 +21,7 @@ from utils import *
 import argparse
 parser = argparse.ArgumentParser()
 #dataset selection
-parser.add_argument('--dataset', type=str, default='acdc', choices=['acdc','prostate_md','mmwhs'])
+parser.add_argument('--dataset', type=str, default='acdc', choices=['acdc','prostate_md','mmwhs','us'])
 #no of training images
 parser.add_argument('--no_of_tr_imgs', type=str, default='tr52', choices=['tr52','tr22','tr10'])
 #combination of training images
@@ -52,7 +52,7 @@ parser.add_argument('--n_parts', type=int, default=4)
 parser.add_argument('--n_iter', type=int, default=10001)
 
 #batch_size value - if global_loss_exp_no = 1, bt_size = 12; if global_loss_exp_no = 2, bt_size = 8
-parser.add_argument('--bt_size', type=int,default=12)
+parser.add_argument('--bt_size', type=int,default=8)
 
 parse_config = parser.parse_args()
 #parse_config = parser.parse_args(args=[])
@@ -69,6 +69,10 @@ elif parse_config.dataset == 'prostate_md':
     print('load prostate_md configs')
     import experiment_init.init_prostate_md as cfg
     import experiment_init.data_cfg_prostate_md as data_list
+elif parse_config.dataset == 'us':
+    print('load ultra sound configs')
+    import experiment_init.init_us as cfg
+    import experiment_init.data_cfg_us as data_list
 else:
     raise ValueError(parse_config.dataset)
 
@@ -90,6 +94,9 @@ elif parse_config.dataset == 'mmwhs':
 elif parse_config.dataset == 'prostate_md':
     print('set prostate_md orig img dataloader handle')
     orig_img_dt=dt.load_prostate_imgs_md
+elif parse_config.dataset == 'us':
+    print('set us orig img dataloader handle')
+    orig_img_dt=dt.load_us_imgs
 
 #  load model object
 from models import modelObj

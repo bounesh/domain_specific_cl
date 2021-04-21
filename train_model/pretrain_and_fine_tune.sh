@@ -8,23 +8,23 @@
 #Step 1
 echo Step 1: start pre-training of Encoder
 
-python3 pretr_encoder_global_contrastive_loss.py --dataset=prostate_md --no_of_tr_imgs=tr22 --global_loss_exp_no=2 --n_parts=4 --temp_fac=0.1 --bt_size=12
+python3 pretr_encoder_global_contrastive_loss.py --dataset=us --no_of_tr_imgs=tr10 --global_loss_exp_no=2 --n_parts=4 --temp_fac=0.1
 
 echo end of pre-training of Encoder
 
-#Step 2
-echo Step 2: start pre-training of Decoder
-
-python3 pretr_decoder_local_contrastive_loss.py --dataset=prostate_md --no_of_tr_imgs=tr22 --pretr_no_of_tr_imgs=tr22 --local_reg_size=1 --no_of_local_regions=13 --temp_fac=0.1 --global_loss_exp_no=2 --local_loss_exp_no=0 --no_of_decoder_blocks=3 --no_of_neg_local_regions=5 --bt_size=12
-
-echo end of pre-training of Decoder
-
-#Step 3
-echo Step 3: start fine-tuning with initialization from both Encoder and Decoder weights learned from pre-training
-
-python3 ft_pretr_encoder_decoder_net_local_loss.py --dataset=prostate_md --pretr_no_of_tr_imgs=tr22 --local_reg_size=1 --no_of_local_regions=13 --temp_fac=0.1 --global_loss_exp_no=2 --local_loss_exp_no=0 --no_of_decoder_blocks=3 --no_of_neg_local_regions=5 --no_of_tr_imgs=tr1 --comb_tr_imgs=c1 --ver=0
-
-echo end of fine-tuning
+##Step 2
+#echo Step 2: start pre-training of Decoder
+#
+#python3 pretr_decoder_local_contrastive_loss.py --dataset=us --no_of_tr_imgs=tr10 --pretr_no_of_tr_imgs=tr10 --local_reg_size=1 --no_of_local_regions=13 --temp_fac=0.1 --global_loss_exp_no=2 --local_loss_exp_no=0 --no_of_decoder_blocks=3 --no_of_neg_local_regions=5
+#
+#echo end of pre-training of Decoder
+#
+##Step 3
+#echo Step 3: start fine-tuning with initialization from both Encoder and Decoder weights learned from pre-training
+#
+#python3 ft_pretr_encoder_decoder_net_local_loss.py --dataset=us --pretr_no_of_tr_imgs=tr10 --local_reg_size=1 --no_of_local_regions=13 --temp_fac=0.1 --global_loss_exp_no=2 --local_loss_exp_no=0 --no_of_decoder_blocks=3 --no_of_neg_local_regions=5 --no_of_tr_imgs=tr5 --comb_tr_imgs=c1 --ver=0
+#
+#echo end of fine-tuning
 
 #Optional Step - Fine-tuning with only pre-trained Encoder weights
 #echo start fine-tuning with initialization from only Encoder weights learned from pre-training

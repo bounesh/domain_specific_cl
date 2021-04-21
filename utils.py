@@ -340,6 +340,7 @@ def load_val_imgs(val_list,dt,orig_img_dt):
 
     for val_id in val_list:
         val_id_list=[val_id]
+
         val_img,val_label,pixel_size_val=orig_img_dt(val_id_list)
         #pre-process the image into chosen resolution and dimensions
         val_cropped_img,val_cropped_mask = dt.preprocess_data(val_img, val_label, pixel_size_val)

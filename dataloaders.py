@@ -180,6 +180,49 @@ class dataloaderObj:
             else:
                 return image_data_test_sys,label_data_test_sys,pixel_size,affine_tst
 
+    def load_us_imgs(self, study_id_list,ret_affine=0,label_present=1):
+        """
+        #Load US image and its label with pixel dimensions
+        input params :
+            study_id_list: subject id number of the image to be loaded
+            ret_affine: to enable returning of affine transformation matrix of the loaded image
+            label_present : to enable loading of 3D mask if the label is present or not (0 is used for unlabeled images)
+        returns :
+            image_data_test_sys : normalized 3D image
+            label_data_test_sys : 3D label mask of the image
+            pixel_size : pixel dimensions of the loaded image
+            affine_tst : affine transformation matrix of the loaded image
+        """
+        for study_id in study_id_list:
+            img_path = str(self.data_path_tr) + '/Volumes/' + str(study_id) + '.nii.gz'
+            seg_path = str(self.data_path_tr) + '/Segmentation-Inner/' + str(study_id) + '.nii.gz'
+
+        # Load the 3D image
+        image_data_test_load = nib.load(img_path)
+        image_data_test_sys = image_data_test_load.get_data()
+        pixel_size = image_data_test_load.header['pixdim'][1:4]
+        affine_tst = image_data_test_load.affine
+        image_data_test_sys = image_data_test_sys[:, :, :]
+
+        # Normalize input data
+        image_data_test_sys = self.normalize_minmax_data(image_data_test_sys)
+
+        if (label_present == 1):
+            # Load the segmentation mask
+            label_data_test_load = nib.load(seg_path)
+            label_data_test_sys = label_data_test_load.get_data()
+
+        if (label_present == 0):
+            if (ret_affine == 0):
+                return image_data_test_sys, pixel_size
+            else:
+                return image_data_test_sys, pixel_size, affine_tst
+        else:
+            if (ret_affine == 0):
+                return image_data_test_sys, label_data_test_sys, pixel_size
+            else:
+                return image_data_test_sys, label_data_test_sys, pixel_size, affine_tst
+
     def crop_or_pad_slice_to_size_1hot(self, img_slice, nx, ny):
         """
         To crop the input 2D slice for the chosen dimensions in 1-hot encoding format
