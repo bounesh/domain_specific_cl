@@ -740,7 +740,7 @@ def sample_minibatch_for_global_loss_opti(img_list,cfg,batch_sz,n_vols,n_parts):
     count=0
     #select indexes of 'm' volumes out of total M.
     im_ns=random.sample(range(0, len(img_list)), n_vols)
-    fin_batch=np.zeros((batch_sz,cfg.img_size_x,cfg.img_size_x,cfg.num_channels))
+    fin_batch=np.zeros((batch_sz,cfg.img_size_x,cfg.img_size_y,cfg.num_channels))
     #print(im_ns)
     for vol_index in im_ns:
         #print('j',j)

@@ -608,12 +608,18 @@ class modelObj:
 
         seg_summary = tf.summary.scalar('reg_cost', tf.reduce_mean(reg_cost))
         # Merge all the summaries and write them out to /tmp/mnist_logs (by default)
-        train_summary = tf.compat.v1.summary.merge([seg_summary])
+        # train_summary = tf.compat.v1.summary.merge([seg_summary])
+        # train_summary = tf.summary.merge([seg_summary])
+        # train_summary = "train summary placehold"
+        train_summary = seg_summary
 
         val_totalc = tf.compat.v1.placeholder(tf.float32, shape=[], name='val_totalc')
         val_totalc_sum= tf.summary.scalar('val_totalc_', val_totalc)
-        val_summary = tf.compat.v1.summary.merge([val_totalc_sum])
-        #val_summary = tf.summary.merge([mean_dice_summary,val_totalc_sum])
+        # val_summary = tf.compat.v1.summary.merge([val_totalc_sum])
+        # val_summary = tf.summary.merge([val_totalc_sum])
+        # val_summary = tf.summary.merge([mean_dice_summary,val_totalc_sum])
+        # val_summary = "val summary placehold"
+        val_summary = val_totalc_sum
 
         return {'x':x, 'train_phase':train_phase, 'reg_cost':cost_reg, \
                 'optimizer_unet_reg':optimizer_unet_reg, 'train_summary':train_summary, 'reg_pred':reg_pred,\
