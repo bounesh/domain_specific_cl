@@ -8,7 +8,7 @@
 #Step 1
 echo Step 1: start pre-training of Encoder
 
-python3 pretr_encoder_global_contrastive_loss.py --dataset=us --no_of_tr_imgs=tr10 --global_loss_exp_no=2 --n_parts=4 --temp_fac=0.1
+python pretr_encoder_global_contrastive_loss.py --dataset=us --no_of_tr_imgs=tr10 --global_loss_exp_no=2 --n_parts=4 --temp_fac=0.1
 
 echo end of pre-training of Encoder
 

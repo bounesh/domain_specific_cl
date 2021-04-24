@@ -1,7 +1,7 @@
 import os
 
 import tensorflow as tf
-config=tf.ConfigProto()
+config=tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth=True
 config.allow_soft_placement=True
 
@@ -141,7 +141,7 @@ print('save dir ',save_dir)
 ######################################
 # Define network graph
 ######################################
-tf.reset_default_graph()
+tf.compat.v1.reset_default_graph()
 # Segmentation network
 ae = model.seg_unet(learn_rate_seg=parse_config.lr_seg,dsc_loss=parse_config.dsc_loss,\
                      en_1hot=parse_config.en_1hot,mtask_en=0)
@@ -166,17 +166,17 @@ pathlib.Path(best_model_dir).mkdir(parents=True, exist_ok=True)
 
 ######################################
 #writer for train summary
-train_writer = tf.summary.FileWriter(logs_path)
+train_writer = tf.compat.v1.summary.FileWriter(logs_path)
 #writer for dice score and val summary
-#dsc_writer = tf.summary.FileWriter(logs_path)
-val_sum_writer = tf.summary.FileWriter(logs_path)
+#dsc_writer = tf.compat.v1.summary.FileWriter(logs_path)
+val_sum_writer = tf.compat.v1.summary.FileWriter(logs_path)
 ######################################
 
 ######################################
 # Define session and saver
-sess = tf.Session(config=config)
-sess.run(tf.global_variables_initializer())
-saver = tf.train.Saver(max_to_keep=2)
+sess = tf.compat.v1.Session(config=config)
+sess.run(tf.compat.v1.global_variables_initializer())
+saver = tf.compat.v1.train.Saver(max_to_keep=2)
 ######################################
 
 ######################################
@@ -267,8 +267,8 @@ sess.close()
 mp_best=get_max_chkpt_file(save_dir)
 print('mp_best',mp_best)
 
-saver = tf.train.Saver()
-sess = tf.Session(config=config)
+saver = tf.compat.v1.train.Saver()
+sess = tf.compat.v1.Session(config=config)
 saver.restore(sess, mp_best)
 print("Model restored")
 
@@ -278,6 +278,6 @@ save_dir_tmp=save_dir+'/test_set_predictions/'
 f1_util.test_set_predictions(test_list,sess,ae,dt,orig_img_dt,save_dir_tmp)
 
 sess.close()
-tf.reset_default_graph()
+tf.compat.v1.reset_default_graph()
 ######################################
 

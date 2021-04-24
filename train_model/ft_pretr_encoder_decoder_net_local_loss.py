@@ -312,7 +312,7 @@ pathlib.Path(best_model_dir).mkdir(parents=True, exist_ok=True)
 #writer for train summary
 train_writer = tf.compat.v1.summary.FileWriter(logs_path)
 #writer for dice score and val summary
-#dsc_writer = tf.summary.FileWriter(logs_path)
+#dsc_writer = tf.compat.v1.summary.FileWriter(logs_path)
 val_sum_writer = tf.compat.v1.summary.FileWriter(logs_path)
 ######################################
 

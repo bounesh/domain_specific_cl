@@ -158,7 +158,7 @@ class layersObj:
         new_height = int(round(prev_height * scale_factor))
         new_width = int(round(prev_width * scale_factor))
 
-        op = tf.compat.v1.image.resize_images(images=ip_layer,size=[new_height,new_width],method=method)
+        op = tf.image.resize_images(images=ip_layer,size=[new_height,new_width],method=method)
 
         return op
 
@@ -170,7 +170,7 @@ class layersObj:
         kernel_size_aug = [1, kernel_size[0], kernel_size[1], 1]
         strides_aug = [1, strides[0], strides[1], 1]
 
-        op = tf.nn.max_pool(ip_layer, ksize=kernel_size_aug, strides=strides_aug, padding=padding, name=name)
+        op = tf.nn.max_pool2d(ip_layer, ksize=kernel_size_aug, strides=strides_aug, padding=padding, name=name)
 
         return op
 
@@ -241,7 +241,7 @@ class layersObj:
         nInputUnits=shape[0]*shape[1]*shape[2]
         stddev_val = 1. / math.sqrt( nInputUnits/2 )
         #http://cs231n.github.io/neural-networks-2/#init
-        return tf.Variable(tf.compat.v1.random_normal(shape, stddev=stddev_val, seed=1),name=name)
+        return tf.Variable(tf.random.normal(shape, stddev=stddev_val, seed=1),name=name)
 
     def get_bias_variable(self,shape, name=None, init_bias_val=0.0):
         """

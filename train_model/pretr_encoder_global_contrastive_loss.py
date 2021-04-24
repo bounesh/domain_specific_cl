@@ -161,7 +161,7 @@ ae_rc = model.brit_cont_net(batch_size=cfg.batch_size_ft)
 #writer for train summary
 train_writer = tf.compat.v1.summary.FileWriter(logs_path)
 #writer for dice score and val summary
-#dsc_writer = tf.summary.FileWriter(logs_path)
+#dsc_writer = tf.compat.v1.summary.FileWriter(logs_path)
 val_sum_writer = tf.compat.v1.summary.FileWriter(logs_path)
 ######################################
 
@@ -169,7 +169,7 @@ val_sum_writer = tf.compat.v1.summary.FileWriter(logs_path)
 # Define session and saver
 sess = tf.compat.v1.Session(config=config)
 sess.run(tf.compat.v1.global_variables_initializer())
-#saver = tf.train.Saver(tf.trainable_variables(),max_to_keep=2)
+#saver = tf.compat.v1.train.Saver(tf.compat.v1.trainable_variables(),max_to_keep=2)
 saver = tf.compat.v1.train.Saver(max_to_keep=2)
 ######################################
 

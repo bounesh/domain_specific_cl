@@ -1,9 +1,0 @@
-#!D:\Dokumenti\Faks\Magisterij\LGM\domain_specific_cl\venv\Scripts\python.exe
-"""PAR/REC to NIfTI converter
-"""
-
-from nibabel.parrec2nii_cmd import main
-
-
-if __name__ == '__main__':
-    main()

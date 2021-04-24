@@ -42,8 +42,8 @@ class modelObj:
         y_tmp = tf.compat.v1.placeholder(tf.int32, shape=[batch_size, self.img_size_x, self.img_size_y], name='y_tmp')
 
         y_tmp_1hot = tf.one_hot(y_tmp,depth=self.num_classes)
-        w_tmp = tf.compat.v1.contrib.image.dense_image_warp(image=x_tmp,flow=v_tmp,name='dense_image_warp_tmp')
-        w_tmp_1hot = tf.compat.v1.contrib.image.dense_image_warp(image=y_tmp_1hot,flow=v_tmp,name='dense_image_warp_tmp_1hot')
+        w_tmp = tf.contrib.image.dense_image_warp(image=x_tmp,flow=v_tmp,name='dense_image_warp_tmp')
+        w_tmp_1hot = tf.contrib.image.dense_image_warp(image=y_tmp_1hot,flow=v_tmp,name='dense_image_warp_tmp_1hot')
 
         return {'x_tmp':x_tmp,'flow_v':v_tmp,'deform_x':w_tmp,'y_tmp':y_tmp,'y_tmp_1hot':y_tmp_1hot,'deform_y_1hot':w_tmp_1hot}
 
@@ -153,10 +153,10 @@ class modelObj:
         ###################################
         # Architecture of small network (g_1) on top of encoder (e) to match the representations
         # flat -> 3200 -> 1024 -> 128
-        reg_flat = tf.compat.v1.layers.flatten(inputs=enc_c6_b)
+        reg_flat = tf.layers.flatten(inputs=enc_c6_b)
 
-        reg_NN_1 = tf.compat.v1.layers.dense(inputs=reg_flat,units=1024, name='reg_nn1', activation=tf.nn.relu, use_bias=False)
-        reg_pred = tf.compat.v1.layers.dense(inputs=reg_NN_1, units=128, name='reg_pred', activation=None, use_bias=False)
+        reg_NN_1 = tf.layers.dense(inputs=reg_flat,units=1024, name='reg_nn1', activation=tf.nn.relu, use_bias=False)
+        reg_pred = tf.layers.dense(inputs=reg_NN_1, units=128, name='reg_pred', activation=None, use_bias=False)
         ###################################
 
         net_global_loss=0
@@ -191,7 +191,7 @@ class modelObj:
         #         # numerator of loss term (num_i1_ss), & denominator of loss term (den_i1_ss)
         #         num_i1_ss=self.cos_sim(x_num_i1,x_num_i2,temp_fac)
         #         den_i1_ss=self.cos_sim(x_num_i1,x_den_i1,temp_fac)
-        #         num_i1_loss=-tf.log(tf.exp(num_i1_ss)/tf.math.reduce_sum(tf.exp(den_i1_ss)))
+        #         num_i1_loss=-tf.math.log(tf.exp(num_i1_ss)/tf.math.reduce_sum(tf.exp(den_i1_ss)))
         #         net_global_loss = net_global_loss + num_i1_loss
         #         #print('a2',num_i1_ss,den_i1_ss,num_i1_loss)
         #
@@ -199,7 +199,7 @@ class modelObj:
         #         # numerator of loss term (num_i2_ss), & denominator of loss term (den_i2_ss)
         #         num_i2_ss=self.cos_sim(x_num_i2,x_num_i1,temp_fac)
         #         den_i2_ss=self.cos_sim(x_num_i2,x_den_i2,temp_fac)
-        #         num_i2_loss=-tf.log(tf.exp(num_i2_ss)/tf.math.reduce_sum(tf.exp(den_i2_ss)))
+        #         num_i2_loss=-tf.math.log(tf.exp(num_i2_ss)/tf.math.reduce_sum(tf.exp(den_i2_ss)))
         #         net_global_loss = net_global_loss + num_i2_loss
 
         if(global_loss_exp_no==1):
@@ -249,36 +249,36 @@ class modelObj:
                 # numerator of loss term (num_i1_i2_ss) & denominator of loss term (den_i1_i2_ss) & loss (num_i1_i2_loss)
                 num_i1_i2_ss=self.cos_sim(x_num_i1,x_num_i2,temp_fac)
                 den_i1_i2_ss=self.cos_sim(x_num_i1,x_den,temp_fac)
-                num_i1_i2_loss=-tf.compat.v1.log(tf.exp(num_i1_i2_ss)/(tf.exp(num_i1_i2_ss)+tf.math.reduce_sum(tf.exp(den_i1_i2_ss))))
+                num_i1_i2_loss=-tf.math.log(tf.exp(num_i1_i2_ss)/(tf.exp(num_i1_i2_ss)+tf.math.reduce_sum(tf.exp(den_i1_i2_ss))))
                 net_global_loss = net_global_loss + num_i1_i2_loss
                 # for positive pair (x_2,x_1);
                 # numerator same & denominator of loss term (den_i1_i2_ss) & loss (num_i1_i2_loss)
                 den_i2_i1_ss=self.cos_sim(x_num_i2,x_den,temp_fac)
-                num_i2_i1_loss=-tf.compat.v1.log(tf.exp(num_i1_i2_ss)/(tf.exp(num_i1_i2_ss)+tf.math.reduce_sum(tf.exp(den_i2_i1_ss))))
+                num_i2_i1_loss=-tf.math.log(tf.exp(num_i1_i2_ss)/(tf.exp(num_i1_i2_ss)+tf.math.reduce_sum(tf.exp(den_i2_i1_ss))))
                 net_global_loss = net_global_loss + num_i2_i1_loss
 
                 # for positive pair (x_1,x_3);
                 # numerator of loss term (num_i1_i3_ss) & denominator of loss term (den_i1_i3_ss) & loss (num_i1_i3_loss)
                 num_i1_i3_ss=self.cos_sim(x_num_i1,x_num_i3,temp_fac)
                 den_i1_i3_ss=self.cos_sim(x_num_i1,x_den,temp_fac)
-                num_i1_i3_loss=-tf.compat.v1.log(tf.exp(num_i1_i3_ss)/(tf.exp(num_i1_i3_ss)+tf.math.reduce_sum(tf.exp(den_i1_i3_ss))))
+                num_i1_i3_loss=-tf.math.log(tf.exp(num_i1_i3_ss)/(tf.exp(num_i1_i3_ss)+tf.math.reduce_sum(tf.exp(den_i1_i3_ss))))
                 net_global_loss = net_global_loss + num_i1_i3_loss
                 # for positive pair (x_3,x_1);
                 # numerator same & denominator of loss term (den_i3_i1_ss) & loss (num_i3_i1_loss)
                 den_i3_i1_ss=self.cos_sim(x_num_i3,x_den,temp_fac)
-                num_i3_i1_loss=-tf.compat.v1.log(tf.exp(num_i1_i3_ss)/(tf.exp(num_i1_i3_ss)+tf.math.reduce_sum(tf.exp(den_i3_i1_ss))))
+                num_i3_i1_loss=-tf.math.log(tf.exp(num_i1_i3_ss)/(tf.exp(num_i1_i3_ss)+tf.math.reduce_sum(tf.exp(den_i3_i1_ss))))
                 net_global_loss = net_global_loss + num_i3_i1_loss
 
                 # for positive pair (x_2,x_3);
                 # numerator of loss term (num_i2_i3_ss) & denominator of loss term (den_i2_i3_ss) & loss (num_i2_i3_loss)
                 num_i2_i3_ss=self.cos_sim(x_num_i2,x_num_i3,temp_fac)
                 den_i2_i3_ss=self.cos_sim(x_num_i2,x_den,temp_fac)
-                num_i2_i3_loss=-tf.compat.v1.log(tf.exp(num_i2_i3_ss)/(tf.exp(num_i2_i3_ss)+tf.math.reduce_sum(tf.exp(den_i2_i3_ss))))
+                num_i2_i3_loss=-tf.math.log(tf.exp(num_i2_i3_ss)/(tf.exp(num_i2_i3_ss)+tf.math.reduce_sum(tf.exp(den_i2_i3_ss))))
                 net_global_loss = net_global_loss + num_i2_i3_loss
                 # for positive pair (x_3,x_2):
                 # numerator same & denominator of loss term (den_i3_i2_ss) & loss (num_i3_i2_loss)
                 den_i3_i2_ss=self.cos_sim(x_num_i3,x_den,temp_fac)
-                num_i3_i2_loss=-tf.compat.v1.log(tf.exp(num_i2_i3_ss)/(tf.exp(num_i2_i3_ss)+tf.math.reduce_sum(tf.exp(den_i3_i2_ss))))
+                num_i3_i2_loss=-tf.math.log(tf.exp(num_i2_i3_ss)/(tf.exp(num_i2_i3_ss)+tf.math.reduce_sum(tf.exp(den_i3_i2_ss))))
                 net_global_loss = net_global_loss + num_i3_i2_loss
 
         elif(global_loss_exp_no==2):
@@ -358,48 +358,48 @@ class modelObj:
                     # numerator of loss term (num_i1_i2_ss) & denominator of loss term (den_i1_i2_ss) & loss (num_i1_i2_loss)
                     num_i1_i2_ss=self.cos_sim(x_num_i1,x_num_i2,temp_fac)
                     den_i1_i2_ss=self.cos_sim(x_num_i1,x_den,temp_fac)
-                    num_i1_i2_loss=-tf.compat.v1.log(tf.exp(num_i1_i2_ss)/(tf.exp(num_i1_i2_ss)+tf.math.reduce_sum(tf.exp(den_i1_i2_ss))))
+                    num_i1_i2_loss=-tf.math.log(tf.exp(num_i1_i2_ss)/(tf.exp(num_i1_i2_ss)+tf.math.reduce_sum(tf.exp(den_i1_i2_ss))))
                     net_global_loss = net_global_loss + num_i1_i2_loss
                     # for positive pair (x_a_i1,x_i1);
                     # numerator same & denominator of loss term (den_i1_i2_ss) & loss (num_i1_i2_loss)
                     den_i2_i1_ss=self.cos_sim(x_num_i2,x_den,temp_fac)
-                    num_i2_i1_loss=-tf.compat.v1.log(tf.exp(num_i1_i2_ss)/(tf.exp(num_i1_i2_ss)+tf.math.reduce_sum(tf.exp(den_i2_i1_ss))))
+                    num_i2_i1_loss=-tf.math.log(tf.exp(num_i1_i2_ss)/(tf.exp(num_i1_i2_ss)+tf.math.reduce_sum(tf.exp(den_i2_i1_ss))))
                     net_global_loss = net_global_loss + num_i2_i1_loss
 
                     # for positive pair (x_i1, x_j1): (i1,i3)
                     # numerator of loss term (num_i1_i3_ss) & denominator of loss term (den_i1_i3_ss) & loss (num_i1_i3_loss)
                     num_i1_i3_ss=self.cos_sim(x_num_i1,x_num_i3,temp_fac)
                     den_i1_i3_ss=self.cos_sim(x_num_i1,x_den,temp_fac)
-                    num_i1_i3_loss=-tf.compat.v1.log(tf.exp(num_i1_i3_ss)/(tf.exp(num_i1_i3_ss)+tf.math.reduce_sum(tf.exp(den_i1_i3_ss))))
+                    num_i1_i3_loss=-tf.math.log(tf.exp(num_i1_i3_ss)/(tf.exp(num_i1_i3_ss)+tf.math.reduce_sum(tf.exp(den_i1_i3_ss))))
                     net_global_loss = net_global_loss + num_i1_i3_loss
                     # for positive pair (x_j1, x_i1);
                     # numerator same & denominator of loss term (den_i3_i1_ss) & loss (num_i3_i1_loss)
                     den_i3_i1_ss=self.cos_sim(x_num_i3,x_den,temp_fac)
-                    num_i3_i1_loss=-tf.compat.v1.log(tf.exp(num_i1_i3_ss)/(tf.exp(num_i1_i3_ss)+tf.math.reduce_sum(tf.exp(den_i3_i1_ss))))
+                    num_i3_i1_loss=-tf.math.log(tf.exp(num_i1_i3_ss)/(tf.exp(num_i1_i3_ss)+tf.math.reduce_sum(tf.exp(den_i3_i1_ss))))
                     net_global_loss = net_global_loss + num_i3_i1_loss
 
                     # for positive pair (x_j1, x_a_j1): (i3,i4)
                     # numerator of loss term (num_i2_i3_ss) & denominator of loss term (den_i2_i3_ss) & loss (num_i2_i3_loss)
                     num_i3_i4_ss=self.cos_sim(x_num_i3,x_num_i4,temp_fac)
                     den_i3_i4_ss=self.cos_sim(x_num_i3,x_den,temp_fac)
-                    num_i3_i4_loss=-tf.compat.v1.log(tf.exp(num_i3_i4_ss)/(tf.exp(num_i3_i4_ss)+tf.math.reduce_sum(tf.exp(den_i3_i4_ss))))
+                    num_i3_i4_loss=-tf.math.log(tf.exp(num_i3_i4_ss)/(tf.exp(num_i3_i4_ss)+tf.math.reduce_sum(tf.exp(den_i3_i4_ss))))
                     net_global_loss = net_global_loss + num_i3_i4_loss
                     # for positive pair (x_a_j1, x_j1)
                     # numerator same & denominator of loss term (den_i3_i2_ss) & loss (num_i3_i2_loss)
                     den_i4_i3_ss=self.cos_sim(x_num_i4,x_den,temp_fac)
-                    num_i4_i3_loss=-tf.compat.v1.log(tf.exp(num_i3_i4_ss)/(tf.exp(num_i3_i4_ss)+tf.math.reduce_sum(tf.exp(den_i4_i3_ss))))
+                    num_i4_i3_loss=-tf.math.log(tf.exp(num_i3_i4_ss)/(tf.exp(num_i3_i4_ss)+tf.math.reduce_sum(tf.exp(den_i4_i3_ss))))
                     net_global_loss = net_global_loss + num_i4_i3_loss
 
                     # for positive pair (x_a_i1, x_a_j1): (i2,i4)
                     # numerator of loss term (num_i2_i4_ss) & denominator of loss term (den_i2_i4_ss) & loss (num_i2_i4_loss)
                     num_i2_i4_ss=self.cos_sim(x_num_i2, x_num_i4, temp_fac)
                     den_i2_i4_ss=self.cos_sim(x_num_i2, x_den, temp_fac)
-                    num_i2_i4_loss=-tf.compat.v1.log(tf.exp(num_i2_i4_ss)/(tf.exp(num_i2_i4_ss)+tf.math.reduce_sum(tf.exp(den_i2_i4_ss))))
+                    num_i2_i4_loss=-tf.math.log(tf.exp(num_i2_i4_ss)/(tf.exp(num_i2_i4_ss)+tf.math.reduce_sum(tf.exp(den_i2_i4_ss))))
                     net_global_loss = net_global_loss + num_i2_i4_loss
                     # for positive pair (x_a_j1, x_a_i1)
                     # numerator same & denominator of loss term (den_i4_i2_ss) & loss (num_i4_i2_loss)
                     den_i4_i2_ss=self.cos_sim(x_num_i4, x_den, temp_fac)
-                    num_i4_i2_loss=-tf.compat.v1.log(tf.exp(num_i2_i4_ss)/(tf.exp(num_i2_i4_ss)+tf.math.reduce_sum(tf.exp(den_i4_i2_ss))))
+                    num_i4_i2_loss=-tf.math.log(tf.exp(num_i2_i4_ss)/(tf.exp(num_i2_i4_ss)+tf.math.reduce_sum(tf.exp(den_i4_i2_ss))))
                     net_global_loss = net_global_loss + num_i4_i2_loss
         elif(global_loss_exp_no==4):
             ######################
@@ -492,84 +492,84 @@ class modelObj:
                     # numerator of loss term (num_i1_i2_ss) & denominator of loss term (den_i1_i2_ss) & loss (num_i1_i2_loss)
                     num_i1_i2_ss=self.cos_sim(x_num_i1,x_num_i2,temp_fac)
                     den_i1_i2_ss=self.cos_sim(x_num_i1,x_den,temp_fac)
-                    num_i1_i2_loss=-tf.compat.v1.log(tf.exp(num_i1_i2_ss)/(tf.exp(num_i1_i2_ss)+tf.math.reduce_sum(tf.exp(den_i1_i2_ss))))
+                    num_i1_i2_loss=-tf.math.log(tf.exp(num_i1_i2_ss)/(tf.exp(num_i1_i2_ss)+tf.math.reduce_sum(tf.exp(den_i1_i2_ss))))
                     net_global_loss = net_global_loss + num_i1_i2_loss
                     # for positive pair (x_a_i1,x_i1);
                     # numerator same & denominator of loss term (den_i1_i2_ss) & loss (num_i1_i2_loss)
                     den_i2_i1_ss=self.cos_sim(x_num_i2,x_den,temp_fac)
-                    num_i2_i1_loss=-tf.compat.v1.log(tf.exp(num_i1_i2_ss)/(tf.exp(num_i1_i2_ss)+tf.math.reduce_sum(tf.exp(den_i2_i1_ss))))
+                    num_i2_i1_loss=-tf.math.log(tf.exp(num_i1_i2_ss)/(tf.exp(num_i1_i2_ss)+tf.math.reduce_sum(tf.exp(den_i2_i1_ss))))
                     net_global_loss = net_global_loss + num_i2_i1_loss
 
                     # for positive pair (x_a_i1, x_a_i2): (i2,i3)
                     # numerator of loss term (num_i1_i3_ss) & denominator of loss term (den_i1_i3_ss) & loss (num_i1_i3_loss)
                     num_i2_i3_ss=self.cos_sim(x_num_i2,x_num_i3,temp_fac)
                     den_i2_i3_ss=self.cos_sim(x_num_i2,x_den,temp_fac)
-                    num_i2_i3_loss=-tf.compat.v1.log(tf.exp(num_i2_i3_ss)/(tf.exp(num_i2_i3_ss)+tf.math.reduce_sum(tf.exp(den_i2_i3_ss))))
+                    num_i2_i3_loss=-tf.math.log(tf.exp(num_i2_i3_ss)/(tf.exp(num_i2_i3_ss)+tf.math.reduce_sum(tf.exp(den_i2_i3_ss))))
                     net_global_loss = net_global_loss + num_i2_i3_loss
                     # for positive pair (x_a_i2, x_a_i1);
                     # numerator same & denominator of loss term (den_i3_i1_ss) & loss (num_i3_i1_loss)
                     den_i3_i2_ss=self.cos_sim(x_num_i3,x_den,temp_fac)
-                    num_i3_i2_loss=-tf.compat.v1.log(tf.exp(num_i2_i3_ss)/(tf.exp(num_i2_i3_ss)+tf.math.reduce_sum(tf.exp(den_i3_i2_ss))))
+                    num_i3_i2_loss=-tf.math.log(tf.exp(num_i2_i3_ss)/(tf.exp(num_i2_i3_ss)+tf.math.reduce_sum(tf.exp(den_i3_i2_ss))))
                     net_global_loss = net_global_loss + num_i3_i2_loss
 
                     # for positive pair (x_i1, x_j1): (i1,i4)
                     # numerator of loss term (num_i2_i3_ss) & denominator of loss term (den_i2_i3_ss) & loss (num_i2_i3_loss)
                     num_i1_i4_ss=self.cos_sim(x_num_i1,x_num_i4,temp_fac)
                     den_i1_i4_ss=self.cos_sim(x_num_i1,x_den,temp_fac)
-                    num_i1_i4_loss=-tf.compat.v1.log(tf.exp(num_i1_i4_ss)/(tf.exp(num_i1_i4_ss)+tf.math.reduce_sum(tf.exp(den_i1_i4_ss))))
+                    num_i1_i4_loss=-tf.math.log(tf.exp(num_i1_i4_ss)/(tf.exp(num_i1_i4_ss)+tf.math.reduce_sum(tf.exp(den_i1_i4_ss))))
                     net_global_loss = net_global_loss + num_i1_i4_loss
                     # for positive pair (x_j1, x_i1)
                     # numerator same & denominator of loss term (den_i3_i2_ss) & loss (num_i3_i2_loss)
                     den_i4_i1_ss=self.cos_sim(x_num_i4,x_den,temp_fac)
-                    num_i4_i1_loss=-tf.compat.v1.log(tf.exp(num_i1_i4_ss)/(tf.exp(num_i1_i4_ss)+tf.math.reduce_sum(tf.exp(den_i4_i1_ss))))
+                    num_i4_i1_loss=-tf.math.log(tf.exp(num_i1_i4_ss)/(tf.exp(num_i1_i4_ss)+tf.math.reduce_sum(tf.exp(den_i4_i1_ss))))
                     net_global_loss = net_global_loss + num_i4_i1_loss
 
                     # for positive pair (x_j1, x_a_j1): (i4,i5)
                     # numerator of loss term (num_i2_i4_ss) & denominator of loss term (den_i2_i4_ss) & loss (num_i2_i4_loss)
                     num_i4_i5_ss=self.cos_sim(x_num_i4, x_num_i5, temp_fac)
                     den_i4_i5_ss=self.cos_sim(x_num_i4, x_den, temp_fac)
-                    num_i4_i5_loss=-tf.compat.v1.log(tf.exp(num_i4_i5_ss)/(tf.exp(num_i4_i5_ss)+tf.math.reduce_sum(tf.exp(den_i4_i5_ss))))
+                    num_i4_i5_loss=-tf.math.log(tf.exp(num_i4_i5_ss)/(tf.exp(num_i4_i5_ss)+tf.math.reduce_sum(tf.exp(den_i4_i5_ss))))
                     net_global_loss = net_global_loss + num_i4_i5_loss
                     # for positive pair (x_a_j1, x_j1)
                     # numerator same & denominator of loss term (den_i4_i2_ss) & loss (num_i4_i2_loss)
                     den_i5_i4_ss=self.cos_sim(x_num_i5, x_den, temp_fac)
-                    num_i5_i4_loss=-tf.compat.v1.log(tf.exp(num_i4_i5_ss)/(tf.exp(num_i4_i5_ss)+tf.math.reduce_sum(tf.exp(den_i5_i4_ss))))
+                    num_i5_i4_loss=-tf.math.log(tf.exp(num_i4_i5_ss)/(tf.exp(num_i4_i5_ss)+tf.math.reduce_sum(tf.exp(den_i5_i4_ss))))
                     net_global_loss = net_global_loss + num_i5_i4_loss
                     
                     # for positive pair (x_j1, x_a_j2): (i5,i6)
                     # numerator of loss term (num_i2_i4_ss) & denominator of loss term (den_i2_i4_ss) & loss (num_i2_i4_loss)
                     num_i5_i6_ss=self.cos_sim(x_num_i5, x_num_i6, temp_fac)
                     den_i5_i6_ss=self.cos_sim(x_num_i5, x_den, temp_fac)
-                    num_i5_i6_loss=-tf.compat.v1.log(tf.exp(num_i5_i6_ss)/(tf.exp(num_i5_i6_ss)+tf.math.reduce_sum(tf.exp(den_i5_i6_ss))))
+                    num_i5_i6_loss=-tf.math.log(tf.exp(num_i5_i6_ss)/(tf.exp(num_i5_i6_ss)+tf.math.reduce_sum(tf.exp(den_i5_i6_ss))))
                     net_global_loss = net_global_loss + num_i5_i6_loss
                     # for positive pair (x_a_j2, x_j1)
                     # numerator same & denominator of loss term (den_i4_i2_ss) & loss (num_i4_i2_loss)
                     den_i6_i5_ss=self.cos_sim(x_num_i6, x_den, temp_fac)
-                    num_i6_i5_loss=-tf.compat.v1.log(tf.exp(num_i5_i6_ss)/(tf.exp(num_i5_i6_ss)+tf.math.reduce_sum(tf.exp(den_i6_i5_ss))))
+                    num_i6_i5_loss=-tf.math.log(tf.exp(num_i5_i6_ss)/(tf.exp(num_i5_i6_ss)+tf.math.reduce_sum(tf.exp(den_i6_i5_ss))))
                     net_global_loss = net_global_loss + num_i6_i5_loss
 
                     # for positive pair (x_a_i1, x_a_j2): (i2,i5)
                     # numerator of loss term (num_i2_i4_ss) & denominator of loss term (den_i2_i4_ss) & loss (num_i2_i4_loss)
                     num_i2_i5_ss=self.cos_sim(x_num_i2, x_num_i5, temp_fac)
                     den_i2_i5_ss=self.cos_sim(x_num_i2, x_den, temp_fac)
-                    num_i2_i5_loss=-tf.compat.v1.log(tf.exp(num_i2_i5_ss)/(tf.exp(num_i2_i5_ss)+tf.math.reduce_sum(tf.exp(den_i2_i5_ss))))
+                    num_i2_i5_loss=-tf.math.log(tf.exp(num_i2_i5_ss)/(tf.exp(num_i2_i5_ss)+tf.math.reduce_sum(tf.exp(den_i2_i5_ss))))
                     net_global_loss = net_global_loss + num_i2_i5_loss
                     # for positive pair (x_a_j1, x_a_i1)
                     # numerator same & denominator of loss term (den_i4_i2_ss) & loss (num_i4_i2_loss)
                     den_i5_i2_ss=self.cos_sim(x_num_i5, x_den, temp_fac)
-                    num_i5_i2_loss=-tf.compat.v1.log(tf.exp(num_i2_i5_ss)/(tf.exp(num_i2_i5_ss)+tf.math.reduce_sum(tf.exp(den_i5_i2_ss))))
+                    num_i5_i2_loss=-tf.math.log(tf.exp(num_i2_i5_ss)/(tf.exp(num_i2_i5_ss)+tf.math.reduce_sum(tf.exp(den_i5_i2_ss))))
                     net_global_loss = net_global_loss + num_i5_i2_loss
 
                     # for positive pair (x_a_i2, x_a_j2): (i3,i6)
                     # numerator of loss term (num_i2_i4_ss) & denominator of loss term (den_i2_i4_ss) & loss (num_i2_i4_loss)
                     num_i3_i6_ss=self.cos_sim(x_num_i3, x_num_i6, temp_fac)
                     den_i3_i6_ss=self.cos_sim(x_num_i3, x_den, temp_fac)
-                    num_i3_i6_loss=-tf.compat.v1.log(tf.exp(num_i3_i6_ss)/(tf.exp(num_i3_i6_ss)+tf.math.reduce_sum(tf.exp(den_i3_i6_ss))))
+                    num_i3_i6_loss=-tf.math.log(tf.exp(num_i3_i6_ss)/(tf.exp(num_i3_i6_ss)+tf.math.reduce_sum(tf.exp(den_i3_i6_ss))))
                     net_global_loss = net_global_loss + num_i3_i6_loss
                     # for positive pair (x_a_j2, x_a_i2)
                     # numerator same & denominator of loss term (den_i4_i2_ss) & loss (num_i4_i2_loss)
                     den_i6_i3_ss=self.cos_sim(x_num_i6, x_den, temp_fac)
-                    num_i6_i3_loss=-tf.compat.v1.log(tf.exp(num_i3_i6_ss)/(tf.exp(num_i3_i6_ss)+tf.math.reduce_sum(tf.exp(den_i6_i3_ss))))
+                    num_i6_i3_loss=-tf.math.log(tf.exp(num_i3_i6_ss)/(tf.exp(num_i3_i6_ss)+tf.math.reduce_sum(tf.exp(den_i6_i3_ss))))
                     net_global_loss = net_global_loss + num_i6_i3_loss
 
 
@@ -606,16 +606,16 @@ class modelObj:
 
         #accu= tf.metrics.accuracy(labels=y_l_onehot,predictions=seg_fin_layer)
 
-        seg_summary = tf.summary.scalar('reg_cost', tf.reduce_mean(reg_cost))
+        seg_summary = tf.compat.v1.summary.scalar('reg_cost', tf.reduce_mean(reg_cost))
         # Merge all the summaries and write them out to /tmp/mnist_logs (by default)
-        # train_summary = tf.compat.v1.summary.merge([seg_summary])
+        # train_summary = tf.summary.merge([seg_summary])
         # train_summary = tf.summary.merge([seg_summary])
         # train_summary = "train summary placehold"
         train_summary = seg_summary
 
         val_totalc = tf.compat.v1.placeholder(tf.float32, shape=[], name='val_totalc')
-        val_totalc_sum= tf.summary.scalar('val_totalc_', val_totalc)
-        # val_summary = tf.compat.v1.summary.merge([val_totalc_sum])
+        val_totalc_sum= tf.compat.v1.summary.scalar('val_totalc_', val_totalc)
+        # val_summary = tf.summary.merge([val_totalc_sum])
         # val_summary = tf.summary.merge([val_totalc_sum])
         # val_summary = tf.summary.merge([mean_dice_summary,val_totalc_sum])
         # val_summary = "val summary placehold"
@@ -758,17 +758,17 @@ class modelObj:
             optimizer_unet_dec = tf.compat.v1.train.AdamOptimizer(learning_rate=learn_rate_seg).minimize(cost_seg,var_list=dec_net_vars)
             optimizer_unet_all = tf.compat.v1.train.AdamOptimizer(learning_rate=learn_rate_seg).minimize(cost_seg,var_list=all_net_vars)
 
-        seg_summary = tf.summary.scalar('seg_cost', tf.reduce_mean(seg_cost))
+        seg_summary = tf.compat.v1.summary.scalar('seg_cost', tf.reduce_mean(seg_cost))
         # Merge all the summaries and write them out to /tmp/mnist_logs (by default)
-        train_summary = tf.compat.v1.summary.merge([seg_summary])
+        train_summary = tf.summary.merge([seg_summary])
         # For dice score summary
 
         mean_dice = tf.compat.v1.placeholder(tf.float32, shape=[], name='mean_dice')
-        mean_dice_summary = tf.summary.scalar('mean_val_dice', mean_dice)
+        mean_dice_summary = tf.compat.v1.summary.scalar('mean_val_dice', mean_dice)
 
         val_totalc = tf.compat.v1.placeholder(tf.float32, shape=[], name='val_totalc')
-        val_totalc_sum= tf.summary.scalar('val_totalc_', val_totalc)
-        val_summary = tf.compat.v1.summary.merge([mean_dice_summary,val_totalc_sum])
+        val_totalc_sum= tf.compat.v1.summary.scalar('val_totalc_', val_totalc)
+        val_summary = tf.summary.merge([mean_dice_summary,val_totalc_sum])
 
         if(mtask_en==1):
             return {'x': x, 'y_l':y_l, 'train_phase':train_phase, 'seg_cost': cost_seg,'optimizer_unet_seg':optimizer_unet_seg, \
@@ -1014,9 +1014,9 @@ class modelObj:
                         #fetch x and y coordinates
                         x_num_tmp_i1=tf.gather(x_num_i1,[pos_sample_indexes[local_pos_index,0],pos_sample_indexes[local_pos_index,0]+1,pos_sample_indexes[local_pos_index,0]+2],axis=1)
                         x_num_tmp_i1=tf.gather(x_num_tmp_i1,[pos_sample_indexes[local_pos_index,1],pos_sample_indexes[local_pos_index,1]+1,pos_sample_indexes[local_pos_index,1]+2],axis=2)
-                        x_n_i1_flat = tf.compat.v1.layers.flatten(inputs=x_num_tmp_i1)
+                        x_n_i1_flat = tf.layers.flatten(inputs=x_num_tmp_i1)
                         if(wgt_en==1):
-                            x_w3_n_i1=tf.compat.v1.layers.dense(inputs=x_n_i1_flat, units=128, name='seg_pred', activation=None, use_bias=False,reuse=tf.AUTO_REUSE)
+                            x_w3_n_i1=tf.layers.dense(inputs=x_n_i1_flat, units=128, name='seg_pred', activation=None, use_bias=False,reuse=tf.AUTO_REUSE)
                         else:
                             x_w3_n_i1=x_n_i1_flat
 
@@ -1024,9 +1024,9 @@ class modelObj:
                         #fetch x and y coordinates
                         x_num_tmp_i2=tf.gather(x_num_i2,[pos_sample_indexes[local_pos_index,0],pos_sample_indexes[local_pos_index,0]+1,pos_sample_indexes[local_pos_index,0]+2],axis=1)
                         x_num_tmp_i2=tf.gather(x_num_tmp_i2,[pos_sample_indexes[local_pos_index,1],pos_sample_indexes[local_pos_index,1]+1,pos_sample_indexes[local_pos_index,1]+2],axis=2)
-                        x_n_i2_flat = tf.compat.v1.layers.flatten(inputs=x_num_tmp_i2)
+                        x_n_i2_flat = tf.layers.flatten(inputs=x_num_tmp_i2)
                         if(wgt_en==1):
-                            x_w3_n_i2=tf.compat.v1.layers.dense(inputs=x_n_i2_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE)
+                            x_w3_n_i2=tf.layers.dense(inputs=x_n_i2_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE)
                         else:
                             x_w3_n_i2=x_n_i2_flat
 
@@ -1048,18 +1048,18 @@ class modelObj:
                             #negative local regions in feature map (f_a1_i) from image (x_a1_i)
                             x_den_tmp_i1=tf.gather(x_num_i1,[neg_samples_index_list[local_neg_index,0],neg_samples_index_list[local_neg_index,0]+1,neg_samples_index_list[local_neg_index,0]+2],axis=1)
                             x_den_tmp_i1=tf.gather(x_den_tmp_i1,[neg_samples_index_list[local_neg_index,1],neg_samples_index_list[local_neg_index,1]+1,neg_samples_index_list[local_neg_index,1]+2],axis=2)
-                            x_d_i1_flat = tf.compat.v1.layers.flatten(inputs=x_den_tmp_i1)
+                            x_d_i1_flat = tf.layers.flatten(inputs=x_den_tmp_i1)
                             if(wgt_en==1):
-                                x_w3_d_i1=tf.compat.v1.layers.dense(inputs=x_d_i1_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE )
+                                x_w3_d_i1=tf.layers.dense(inputs=x_d_i1_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE )
                             else:
                                 x_w3_d_i1=x_d_i1_flat
 
                             # negative local regions in feature map (f_a2_i) from image (x_a2_i)
                             x_den_tmp_i2=tf.gather(x_num_i2,[neg_samples_index_list[local_neg_index,0],neg_samples_index_list[local_neg_index,0]+1,neg_samples_index_list[local_neg_index,0]+2],axis=1)
                             x_den_tmp_i2=tf.gather(x_den_tmp_i2,[neg_samples_index_list[local_neg_index,1],neg_samples_index_list[local_neg_index,1]+1,neg_samples_index_list[local_neg_index,1]+2],axis=2)
-                            x_d_i2_flat = tf.compat.v1.layers.flatten(inputs=x_den_tmp_i2)
+                            x_d_i2_flat = tf.layers.flatten(inputs=x_den_tmp_i2)
                             if(wgt_en==1):
-                                x_w3_d_i2=tf.compat.v1.layers.dense(inputs=x_d_i2_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE )
+                                x_w3_d_i2=tf.layers.dense(inputs=x_d_i2_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE )
                             else:
                                 x_w3_d_i2=x_d_i2_flat
 
@@ -1075,13 +1075,13 @@ class modelObj:
                             den_i2_ss=den_i2_ss+tf.exp(self.cos_sim(x_w3_n_i2,x_w3_d_i1,temp_fac))
 
                         #local loss from feature map f_a1_i
-                        num_i1_loss=-tf.compat.v1.log(tf.math.reduce_sum(tf.exp(num_i1_ss))/(tf.math.reduce_sum(tf.exp(num_i1_ss))+tf.math.reduce_sum(den_i1_ss)))
-                        #num_i1_loss=-tf.log(tf.exp(num_i1_ss)/(tf.exp(num_i1_ss)+tf.math.reduce_sum(den_i1_ss)))
+                        num_i1_loss=-tf.math.log(tf.math.reduce_sum(tf.exp(num_i1_ss))/(tf.math.reduce_sum(tf.exp(num_i1_ss))+tf.math.reduce_sum(den_i1_ss)))
+                        #num_i1_loss=-tf.math.log(tf.exp(num_i1_ss)/(tf.exp(num_i1_ss)+tf.math.reduce_sum(den_i1_ss)))
                         local_loss = local_loss + num_i1_loss
 
                         # local loss from feature map f_a2_i
-                        num_i2_loss=-tf.compat.v1.log(tf.math.reduce_sum(tf.exp(num_i2_ss))/(tf.math.reduce_sum(tf.exp(num_i2_ss))+tf.math.reduce_sum(den_i2_ss)))
-                        #num_i2_loss=-tf.log(tf.exp(num_i2_ss)/(tf.exp(num_i2_ss)+tf.math.reduce_sum(den_i2_ss)))
+                        num_i2_loss=-tf.math.log(tf.math.reduce_sum(tf.exp(num_i2_ss))/(tf.math.reduce_sum(tf.exp(num_i2_ss))+tf.math.reduce_sum(den_i2_ss)))
+                        #num_i2_loss=-tf.math.log(tf.exp(num_i2_ss)/(tf.exp(num_i2_ss)+tf.math.reduce_sum(den_i2_ss)))
                         local_loss = local_loss + num_i2_loss
 
                 # if local region size is 1x1
@@ -1132,11 +1132,11 @@ class modelObj:
                             den_i2_ss=den_i2_ss+tf.exp(self.cos_sim(x_num_tmp_i2,x_den_tmp_i1,temp_fac))
 
                         #local loss from feature map f_a1_i
-                        num_i1_loss=-tf.compat.v1.log(tf.math.reduce_sum(tf.exp(num_i1_ss))/(tf.math.reduce_sum(tf.exp(num_i1_ss))+tf.math.reduce_sum(den_i1_ss)))
+                        num_i1_loss=-tf.math.log(tf.math.reduce_sum(tf.exp(num_i1_ss))/(tf.math.reduce_sum(tf.exp(num_i1_ss))+tf.math.reduce_sum(den_i1_ss)))
                         local_loss = local_loss + num_i1_loss
 
                         #local loss from feature map f_a2_i
-                        num_i2_loss=-tf.compat.v1.log(tf.math.reduce_sum(tf.exp(num_i2_ss))/(tf.math.reduce_sum(tf.exp(num_i2_ss))+tf.math.reduce_sum(den_i2_ss)))
+                        num_i2_loss=-tf.math.log(tf.math.reduce_sum(tf.exp(num_i2_ss))/(tf.math.reduce_sum(tf.exp(num_i2_ss))+tf.math.reduce_sum(den_i2_ss)))
                         local_loss = local_loss + num_i2_loss
 
             local_loss=local_loss/no_of_local_regions
@@ -1179,9 +1179,9 @@ class modelObj:
                         # fetch x and y coordinates of local region
                         x_n_tmp_i1=tf.gather(x_num_i1,[pos_sample_indexes[local_pos_index,0],pos_sample_indexes[local_pos_index,0]+1,pos_sample_indexes[local_pos_index,0]+2],axis=1)
                         x_n_tmp_i1=tf.gather(x_n_tmp_i1,[pos_sample_indexes[local_pos_index,1],pos_sample_indexes[local_pos_index,1]+1,pos_sample_indexes[local_pos_index,1]+2],axis=2)
-                        x_n_i1_flat = tf.compat.v1.layers.flatten(inputs=x_n_tmp_i1)
+                        x_n_i1_flat = tf.layers.flatten(inputs=x_n_tmp_i1)
                         if(wgt_en==1):
-                            x_num_tmp_i1=tf.compat.v1.layers.dense(inputs=x_n_i1_flat, units=128, name='seg_pred', activation=None, use_bias=False,reuse=tf.AUTO_REUSE)
+                            x_num_tmp_i1=tf.layers.dense(inputs=x_n_i1_flat, units=128, name='seg_pred', activation=None, use_bias=False,reuse=tf.AUTO_REUSE)
                         else:
                             x_num_tmp_i1=x_n_i1_flat
 
@@ -1189,9 +1189,9 @@ class modelObj:
                         # fetch x and y coordinates of local region
                         x_n_tmp_i2=tf.gather(x_num_i2,[pos_sample_indexes[local_pos_index,0],pos_sample_indexes[local_pos_index,0]+1,pos_sample_indexes[local_pos_index,0]+2],axis=1)
                         x_n_tmp_i2=tf.gather(x_n_tmp_i2,[pos_sample_indexes[local_pos_index,1],pos_sample_indexes[local_pos_index,1]+1,pos_sample_indexes[local_pos_index,1]+2],axis=2)
-                        x_n_i2_flat = tf.compat.v1.layers.flatten(inputs=x_n_tmp_i2)
+                        x_n_i2_flat = tf.layers.flatten(inputs=x_n_tmp_i2)
                         if(wgt_en==1):
-                            x_num_tmp_i2=tf.compat.v1.layers.dense(inputs=x_n_i2_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE)
+                            x_num_tmp_i2=tf.layers.dense(inputs=x_n_i2_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE)
                         else:
                             x_num_tmp_i2=x_n_i2_flat
 
@@ -1199,9 +1199,9 @@ class modelObj:
                         # fetch x and y coordinates of local region
                         x_n_tmp_i3=tf.gather(x_num_i3,[pos_sample_indexes[local_pos_index,0],pos_sample_indexes[local_pos_index,0]+1,pos_sample_indexes[local_pos_index,0]+2],axis=1)
                         x_n_tmp_i3=tf.gather(x_n_tmp_i3,[pos_sample_indexes[local_pos_index,1],pos_sample_indexes[local_pos_index,1]+1,pos_sample_indexes[local_pos_index,1]+2],axis=2)
-                        x_n_i3_flat = tf.compat.v1.layers.flatten(inputs=x_n_tmp_i3)
+                        x_n_i3_flat = tf.layers.flatten(inputs=x_n_tmp_i3)
                         if(wgt_en==1):
-                            x_num_tmp_i3=tf.compat.v1.layers.dense(inputs=x_n_i3_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE)
+                            x_num_tmp_i3=tf.layers.dense(inputs=x_n_i3_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE)
                         else:
                             x_num_tmp_i3=x_n_i3_flat
 
@@ -1209,9 +1209,9 @@ class modelObj:
                         # fetch x and y coordinates of local region
                         x_n_tmp_i4=tf.gather(x_num_i4,[pos_sample_indexes[local_pos_index,0],pos_sample_indexes[local_pos_index,0]+1,pos_sample_indexes[local_pos_index,0]+2],axis=1)
                         x_n_tmp_i4=tf.gather(x_n_tmp_i4,[pos_sample_indexes[local_pos_index,1],pos_sample_indexes[local_pos_index,1]+1,pos_sample_indexes[local_pos_index,1]+2],axis=2)
-                        x_n_i4_flat = tf.compat.v1.layers.flatten(inputs=x_n_tmp_i4)
+                        x_n_i4_flat = tf.layers.flatten(inputs=x_n_tmp_i4)
                         if(wgt_en==1):
-                            x_num_tmp_i4=tf.compat.v1.layers.dense(inputs=x_n_i4_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE)
+                            x_num_tmp_i4=tf.layers.dense(inputs=x_n_i4_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE)
                         else:
                             x_num_tmp_i4=x_n_i4_flat
                     # if local region size is 1x1
@@ -1263,36 +1263,36 @@ class modelObj:
                             #negative local regions in feature map (f_a1_i) from image (x_a1_i)
                             x_d_tmp_i1=tf.gather(x_num_i1,[neg_samples_index_list[local_neg_index,0],neg_samples_index_list[local_neg_index,0]+1,neg_samples_index_list[local_neg_index,0]+2],axis=1)
                             x_d_tmp_i1=tf.gather(x_d_tmp_i1,[neg_samples_index_list[local_neg_index,1],neg_samples_index_list[local_neg_index,1]+1,neg_samples_index_list[local_neg_index,1]+2],axis=2)
-                            x_d_i1_flat = tf.compat.v1.layers.flatten(inputs=x_d_tmp_i1)
+                            x_d_i1_flat = tf.layers.flatten(inputs=x_d_tmp_i1)
                             if(wgt_en==1):
-                                x_den_tmp_i1=tf.compat.v1.layers.dense(inputs=x_d_i1_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE )
+                                x_den_tmp_i1=tf.layers.dense(inputs=x_d_i1_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE )
                             else:
                                 x_den_tmp_i1=x_d_i1_flat
 
                             #negative local regions in feature map (f_a2_i) from image (x_a2_i)
                             x_d_tmp_i2=tf.gather(x_num_i2,[neg_samples_index_list[local_neg_index,0],neg_samples_index_list[local_neg_index,0]+1,neg_samples_index_list[local_neg_index,0]+2],axis=1)
                             x_d_tmp_i2=tf.gather(x_d_tmp_i2,[neg_samples_index_list[local_neg_index,1],neg_samples_index_list[local_neg_index,1]+1,neg_samples_index_list[local_neg_index,1]+2],axis=2)
-                            x_d_i2_flat = tf.compat.v1.layers.flatten(inputs=x_d_tmp_i2)
+                            x_d_i2_flat = tf.layers.flatten(inputs=x_d_tmp_i2)
                             if(wgt_en==1):
-                                x_den_tmp_i2=tf.compat.v1.layers.dense(inputs=x_d_i2_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE )
+                                x_den_tmp_i2=tf.layers.dense(inputs=x_d_i2_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE )
                             else:
                                 x_den_tmp_i2=x_d_i2_flat
 
                             #negative local regions in feature map (f_a1_j) from image (x_a1_j)
                             x_d_tmp_i3=tf.gather(x_num_i3,[neg_samples_index_list[local_neg_index,0],neg_samples_index_list[local_neg_index,0]+1,neg_samples_index_list[local_neg_index,0]+2],axis=1)
                             x_d_tmp_i3=tf.gather(x_d_tmp_i3,[neg_samples_index_list[local_neg_index,1],neg_samples_index_list[local_neg_index,1]+1,neg_samples_index_list[local_neg_index,1]+2],axis=2)
-                            x_d_i3_flat = tf.compat.v1.layers.flatten(inputs=x_d_tmp_i3)
+                            x_d_i3_flat = tf.layers.flatten(inputs=x_d_tmp_i3)
                             if(wgt_en==1):
-                                x_den_tmp_i3=tf.compat.v1.layers.dense(inputs=x_d_i3_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE )
+                                x_den_tmp_i3=tf.layers.dense(inputs=x_d_i3_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE )
                             else:
                                 x_den_tmp_i3=x_d_i3_flat
 
                             #negative local regions in feature map (f_a1_k) from image (x_a1_k)
                             x_d_tmp_i4=tf.gather(x_num_i4,[neg_samples_index_list[local_neg_index,0],neg_samples_index_list[local_neg_index,0]+1,neg_samples_index_list[local_neg_index,0]+2],axis=1)
                             x_d_tmp_i4=tf.gather(x_d_tmp_i4,[neg_samples_index_list[local_neg_index,1],neg_samples_index_list[local_neg_index,1]+1,neg_samples_index_list[local_neg_index,1]+2],axis=2)
-                            x_d_i4_flat = tf.compat.v1.layers.flatten(inputs=x_d_tmp_i4)
+                            x_d_i4_flat = tf.layers.flatten(inputs=x_d_tmp_i4)
                             if(wgt_en==1):
-                                x_den_tmp_i4=tf.compat.v1.layers.dense(inputs=x_d_i4_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE )
+                                x_den_tmp_i4=tf.layers.dense(inputs=x_d_i4_flat, units=128, name='seg_pred', activation=None, use_bias=False, reuse=tf.AUTO_REUSE )
                             else:
                                 x_den_tmp_i4=x_d_i4_flat
                         else:
@@ -1335,13 +1335,13 @@ class modelObj:
 
                     #local loss from feature map f_a1_i and f_a2_i
                     #loss from img-i vs i+12 (1a vs 1b)
-                    local_loss=local_loss-tf.compat.v1.log(tf.math.reduce_sum(tf.exp(num_i1_i2_ss))/(tf.math.reduce_sum(tf.exp(num_i1_i2_ss))+tf.math.reduce_sum(den_i1_ss)))
+                    local_loss=local_loss-tf.math.log(tf.math.reduce_sum(tf.exp(num_i1_i2_ss))/(tf.math.reduce_sum(tf.exp(num_i1_i2_ss))+tf.math.reduce_sum(den_i1_ss)))
                     # local loss from feature map f_a1_i and f_a1_j
                     #loss from img-i vs i+4 (1a vs 2a)
-                    local_loss=local_loss-tf.compat.v1.log(tf.math.reduce_sum(tf.exp(num_i1_i3_ss))/(tf.math.reduce_sum(tf.exp(num_i1_i3_ss))+tf.math.reduce_sum(den_i2_ss)))
+                    local_loss=local_loss-tf.math.log(tf.math.reduce_sum(tf.exp(num_i1_i3_ss))/(tf.math.reduce_sum(tf.exp(num_i1_i3_ss))+tf.math.reduce_sum(den_i2_ss)))
                     # local loss from feature map f_a1_i and f_a1_k
                     #loss from img-i vs i+8 (1a vs 3a)
-                    local_loss=local_loss-tf.compat.v1.log(tf.math.reduce_sum(tf.exp(num_i1_i4_ss))/(tf.math.reduce_sum(tf.exp(num_i1_i4_ss))+tf.math.reduce_sum(den_i3_ss)))
+                    local_loss=local_loss-tf.math.log(tf.math.reduce_sum(tf.exp(num_i1_i4_ss))/(tf.math.reduce_sum(tf.exp(num_i1_i4_ss))+tf.math.reduce_sum(den_i3_ss)))
 
             local_loss=local_loss/no_of_local_regions
 
@@ -1362,16 +1362,16 @@ class modelObj:
                 cost_net=tf.reduce_mean(net_local_loss)
 
                 optimizer_unet_dec = tf.compat.v1.train.AdamOptimizer(learning_rate=learn_rate_seg).minimize(cost_net,var_list=dec_net_vars)
-                #optimizer_unet_all = tf.train.AdamOptimizer(learning_rate=learn_rate_seg).minimize(cost_net,var_list=all_net_vars)
+                #optimizer_unet_all = tf.compat.v1.train.AdamOptimizer(learning_rate=learn_rate_seg).minimize(cost_net,var_list=all_net_vars)
                 #'optimizer_unet_all':optimizer_unet_all,
 
             # Merge all the summaries and write them out to logs
-            seg_summary = tf.summary.scalar('cost_net', tf.reduce_mean(cost_net))
-            train_summary = tf.compat.v1.summary.merge([seg_summary])
+            seg_summary = tf.compat.v1.summary.scalar('cost_net', tf.reduce_mean(cost_net))
+            train_summary = tf.summary.merge([seg_summary])
 
             val_totalc = tf.compat.v1.placeholder(tf.float32, shape=[], name='val_totalc')
-            val_totalc_sum= tf.summary.scalar('val_totalc_', val_totalc)
-            val_summary = tf.compat.v1.summary.merge([val_totalc_sum])
+            val_totalc_sum= tf.compat.v1.summary.scalar('val_totalc_', val_totalc)
+            val_summary = tf.summary.merge([val_totalc_sum])
 
         if(inf==1):
             return {'x':x, 'train_phase':train_phase,'y_pred':y_fin}
