@@ -280,14 +280,14 @@ print('init done for all the encoder network weights and biases from pre-trained
 # Load training and validation images & labels
 ######################################
 #load training volumes id numbers to train the unet
-train_list = data_list.train_data(parse_config.no_of_tr_imgs,parse_config.comb_tr_imgs)
+train_list = data_list.train_data()
 #load saved training data in cropped dimensions directly
 print('load train volumes')
 train_imgs, train_labels = dt.load_cropped_img_labels(train_list)
 #print('train shape',train_imgs.shape,train_labels.shape)
 
 #load validation volumes id numbers to save the best model during training
-val_list = data_list.val_data(parse_config.no_of_tr_imgs,parse_config.comb_tr_imgs)
+val_list = data_list.val_data()
 #load val data both in original dimensions and its cropped dimensions
 print('load val volumes')
 val_label_orig,val_img_crop,val_label_crop,pixel_val_list=load_val_imgs(val_list,dt,orig_img_dt)

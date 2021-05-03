@@ -129,7 +129,7 @@ print('save dir ',save_dir)
 # Load unlabeled training images only & no labels are loaded here
 ######################################
 # load unlabeled volumes id numbers to pre-train the encoder
-unl_list = data_list.train_data(parse_config.no_of_tr_imgs,parse_config.comb_tr_imgs)
+unl_list = data_list.pretrain_data()
 print('load unlabeled volumes for pre-training')
 
 if(parse_config.global_loss_exp_no==0):
