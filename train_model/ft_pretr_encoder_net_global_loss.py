@@ -121,7 +121,7 @@ elif parse_config.dataset == 'prostate_md':
     orig_img_dt=dt.load_prostate_imgs_md
 elif parse_config.dataset == 'us':
     print('set us orig img dataloader handle')
-    orig_img_dt=dt.load_us_imgs(label_present=1)
+    orig_img_dt=dt.load_us_imgs
 
 #  load model object
 from models import modelObj

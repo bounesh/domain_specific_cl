@@ -151,7 +151,7 @@ elif parse_config.dataset == 'prostate_md':
     orig_img_dt=dt.load_prostate_imgs_md
 elif parse_config.dataset == 'us':
     print('set us orig img dataloader handle')
-    orig_img_dt=dt.load_us_imgs(label_present=0)
+    orig_img_dt=dt.load_us_imgs
 
 #  load model object
 from models import modelObj
@@ -254,7 +254,7 @@ print('save dir ',save_dir)
 # Load unlabeled training images only & no labels are loaded here
 ######################################
 #load unlabeled volumes id numbers to pre-train the decoder
-unl_list = data_list.pretrain_data(parse_config.no_of_tr_imgs,parse_config.comb_tr_imgs)
+unl_list = data_list.train_data(parse_config.no_of_tr_imgs,parse_config.comb_tr_imgs)
 print('load unlabeled images for pre-training')
 #print(unl_list)
 
