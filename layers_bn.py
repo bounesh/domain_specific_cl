@@ -158,7 +158,7 @@ class layersObj:
         new_height = int(round(prev_height * scale_factor))
         new_width = int(round(prev_width * scale_factor))
 
-        op = tf.image.resize_images(images=ip_layer,size=[new_height,new_width],method=method)
+        op = tf.image.resize(images=ip_layer,size=[new_height,new_width],method=method)
 
         return op
 
