@@ -348,7 +348,9 @@ print('init done for all the encoder + l decoder blocks weights and biases from 
 train_list = data_list.train_data()
 #load saved training data in cropped dimensions directly
 print('load train volumes')
-train_imgs, train_labels = dt.load_cropped_img_labels(train_list)
+# train_imgs, train_labels = dt.load_cropped_img_labels(train_list)
+train_imgs, train_labels = dt.load_us_imgs(train_list)
+
 #print('train shape',train_imgs.shape,train_labels.shape)
 
 #load validation volumes id numbers to save the best model during training
