@@ -32,10 +32,12 @@ class_name='ut'
 #data paths
 ################################################################
 #validation_update_step to save values
-val_step_update=50
+val_step_update=5
 #base directory of the code
-base_dir='D:/Dokumenti/Faks/Magisterij/LGM/domain_specific_cl'
-srt_dir='D:/Dokumenti/Faks/Magisterij/LGM/domain_specific_cl'
+# base_dir='D:/Dokumenti/Faks/Magisterij/LGM/domain_specific_cl'
+# srt_dir='D:/Dokumenti/Faks/Magisterij/LGM/domain_specific_cl'
+base_dir='/home/eb1690/Documents/domain_specific_cl'
+srt_dir='/home/eb1690/Documents/domain_specific_cl'
 
 #Path to data in original dimensions in default resolution
 data_path_tr='../data_us'

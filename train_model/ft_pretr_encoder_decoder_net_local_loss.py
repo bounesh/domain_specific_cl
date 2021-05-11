@@ -1,7 +1,10 @@
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 import os
 
 import tensorflow as tf
-config=tf.compat.v1.ConfigProto()
+config=tf.ConfigProto()
 config.gpu_options.allow_growth=True
 config.allow_soft_placement=True
 
@@ -41,12 +44,12 @@ parser.add_argument('--pretr_comb_tr_imgs', type=str, default='c1', choices=['c1
 #version of run
 parser.add_argument('--pretr_ver', type=int, default=0)
 #no of iterations to run
-parser.add_argument('--pretr_n_iter', type=int, default=10001)
+parser.add_argument('--pretr_n_iter', type=int, default=10)
 #data augmentation used in pre-training
 parser.add_argument('--pretr_data_aug', type=int, default=0)
 # bounding box dim - dimension of the cropped image. Ex. if bbox_dim=100, then 100 x 100 region is randomly cropped from original image of size W x W & then re-sized to W x W.
 # Later, these re-sized images are used for pre-training using global contrastive loss.
-parser.add_argument('--pretr_cont_bbox_dim', type=int, default=100)
+parser.add_argument('--pretr_cont_bbox_dim', type=int, default=150)
 # temperature_scaling factor
 parser.add_argument('--temp_fac', type=float, default=0.1)
 #learning rate of seg unet
@@ -63,7 +66,7 @@ parser.add_argument('--n_parts', type=int, default=4)
 # type of local_loss_exp_no for Local contrastive loss
 # 0 - default loss formulation. Sample local regions from two images. these 2 images are intensity transformed version of same image.
 # 1 - (0) + sample local regions to match from 2 differnt images that are from 2 different volumes but they belong to corresponding local regions of similar partitions.
-parser.add_argument('--local_loss_exp_no', type=int, default=0)
+parser.add_argument('--local_loss_exp_no', type=int, default=1)
 
 # segmentation loss used for optimization
 # 0 for weighted cross entropy, 1 for dice loss w/o background label, 2 for dice loss with background label (default)
@@ -103,7 +106,7 @@ parser.add_argument('--no_of_neg_local_regions', type=int, default=5)
 parser.add_argument('--no_of_neg_regs_override', type=int, default=4)
 
 #no of iterations to run
-parser.add_argument('--n_iter', type=int, default=10001)
+parser.add_argument('--n_iter', type=int, default=10)
 
 parse_config = parser.parse_args()
 #parse_config = parser.parse_args(args=[])
@@ -121,7 +124,7 @@ elif parse_config.dataset == 'prostate_md':
     import experiment_init.init_prostate_md as cfg
     import experiment_init.data_cfg_prostate_md as data_list
 elif parse_config.dataset == 'us':
-    print('load prostate_md configs')
+    print('load us configs')
     import experiment_init.init_us as cfg
     import experiment_init.data_cfg_us as data_list
 else:
@@ -206,7 +209,7 @@ print('save dir ',save_dir)
 
 ######################################
 # Define Encoder(e) + 'l' decoder blocks (d_l) + g_2 network graph used for pre-training. We load the pre-trained weights of encoder (e) and 'l' decoder blocks.
-tf.compat.v1.reset_default_graph()
+tf.reset_default_graph()
 ae = model.decoder_pretrain_net(learn_rate_seg=parse_config.lr_reg,temp_fac=parse_config.temp_fac, \
                         no_of_local_regions=parse_config.no_of_local_regions, no_of_decoder_blocks=parse_config.no_of_decoder_blocks, \
                         local_loss_exp_no=parse_config.local_loss_exp_no, local_reg_size=parse_config.local_reg_size, \
@@ -220,14 +223,14 @@ mp_best=get_chkpt_file(save_dir)
 print('load last step model from pre-training')
 print('mp_best',mp_best)
 
-saver_rnet = tf.compat.v1.train.Saver()
-sess_rnet = tf.compat.v1.Session(config=config)
+saver_rnet = tf.train.Saver()
+sess_rnet = tf.Session(config=config)
 saver_rnet.restore(sess_rnet, mp_best)
 print("Model restored")
 
 #get all trainable variable names and their values
 print('Loading trainable vars')
-cont_variables_names = [v.name for v in tf.compat.v1.trainable_variables()]
+cont_variables_names = [v.name for v in tf.trainable_variables()]
 #print('var names list',cont_variables_names)
 cont_var_values = sess_rnet.run(cont_variables_names)
 sess_rnet.close()
@@ -286,7 +289,7 @@ print('save dir ',save_dir)
 ######################################
 
 ######################################
-tf.compat.v1.reset_default_graph()
+tf.reset_default_graph()
 # Segmentation Network
 ae = model.seg_unet(learn_rate_seg=parse_config.lr_seg,dsc_loss=parse_config.dsc_loss,en_1hot=parse_config.en_1hot,mtask_en=0)
 
@@ -310,24 +313,24 @@ pathlib.Path(best_model_dir).mkdir(parents=True, exist_ok=True)
 
 ######################################
 #writer for train summary
-train_writer = tf.compat.v1.summary.FileWriter(logs_path)
+train_writer = tf.summary.FileWriter(logs_path)
 #writer for dice score and val summary
-#dsc_writer = tf.compat.v1.summary.FileWriter(logs_path)
-val_sum_writer = tf.compat.v1.summary.FileWriter(logs_path)
+#dsc_writer = tf.summary.FileWriter(logs_path)
+val_sum_writer = tf.summary.FileWriter(logs_path)
 ######################################
 
 ######################################
 # Define session and saver
-sess = tf.compat.v1.Session(config=config)
-sess.run(tf.compat.v1.global_variables_initializer())
-saver = tf.compat.v1.train.Saver(max_to_keep=2)
+sess = tf.Session(config=config)
+sess.run(tf.global_variables_initializer())
+saver = tf.train.Saver(max_to_keep=2)
 ######################################
 
 ######################################
 # assign values to all trainable ops of network
 assign_op=[]
 print('Init of trainable vars')
-for new_var in tf.compat.v1.trainable_variables():
+for new_var in tf.trainable_variables():
     for var, var_val in zip(cont_variables_names, cont_var_values):
         if (str(var) == str(new_var.name) and ('reg_' not in str(new_var.name) and 'seg_' not in str(new_var.name))):
             #print('match name',new_var.name,var)
@@ -449,8 +452,8 @@ sess.close()
 mp_best=get_max_chkpt_file(save_dir)
 print('mp_best',mp_best)
 
-saver = tf.compat.v1.train.Saver()
-sess = tf.compat.v1.Session(config=config)
+saver = tf.train.Saver()
+sess = tf.Session(config=config)
 saver.restore(sess, mp_best)
 print("Model restored")
 #####################################
@@ -460,5 +463,5 @@ save_dir_tmp=save_dir+'/test_set_predictions/'
 f1_util.test_set_predictions(test_list,sess,ae,dt,orig_img_dt,save_dir_tmp)
 
 sess.close()
-tf.compat.v1.reset_default_graph()
+tf.reset_default_graph()
 ######################################

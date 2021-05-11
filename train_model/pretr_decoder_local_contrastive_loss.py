@@ -1,7 +1,10 @@
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 import os
 
 import tensorflow as tf
-config=tf.compat.v1.ConfigProto()
+config=tf.ConfigProto()
 config.gpu_options.allow_growth=True
 config.allow_soft_placement=True
 
@@ -37,19 +40,19 @@ parser.add_argument('--ver', type=int, default=0)
 parser.add_argument('--temp_fac', type=float, default=0.1)
 # bounding box dim - dimension of the cropped image. Ex. if bbox_dim=100, then 100 x 100 region is randomly cropped from original image of size W x W & then re-sized to W x W.
 # Later, these re-sized images are used for pre-training using global contrastive loss.
-parser.add_argument('--bbox_dim', type=int, default=100)
+parser.add_argument('--bbox_dim', type=int, default=150)
 
 #data aug - 0 - disabled, 1 - enabled
 parser.add_argument('--pretr_data_aug', type=int, default=0, choices=[0,1])
 # bounding box dim - dimension of the cropped image. Ex. if bbox_dim=100, then 100 x 100 region is randomly cropped from original image of size W x W & then re-sized to W x W.
 # Later, these re-sized images are used for pre-training using global contrastive loss.
-parser.add_argument('--pretr_bbox_dim', type=int, default=100)
+parser.add_argument('--pretr_bbox_dim', type=int, default=150)
 #no of training images
 parser.add_argument('--pretr_no_of_tr_imgs', type=str, default='tr52', choices=['tr52','tr22','tr10'])
 #combination of training images
 parser.add_argument('--pretr_comb_tr_imgs', type=str, default='c1', choices=['c1'])
 #no of iterations to run
-parser.add_argument('--pretr_n_iter', type=int, default=10001)
+parser.add_argument('--pretr_n_iter', type=int, default=10)
 #pretr version
 parser.add_argument('--pretr_ver', type=int, default=0)
 
@@ -62,16 +65,16 @@ parser.add_argument('--global_loss_exp_no', type=int, default=2)
 # type of local_loss_exp_no for Local contrastive loss
 # 0 - default loss formulation. Sample local regions from two images. these 2 images are intensity transformed version of same image.
 # 1 - (0) + sample local regions to match from 2 differnt images that are from 2 different volumes but they belong to corresponding local regions of similar partitions.
-parser.add_argument('--local_loss_exp_no', type=int, default=0)
+parser.add_argument('--local_loss_exp_no', type=int, default=1)
 #no_of_partitions per volume
 parser.add_argument('--n_parts', type=int, default=4)
 
 
 #Load encoder weights from pre-trained contrastive loss model; 1-Yes, 0-No.
 #Fine-tune which layers: 1- FT only dec. layer (enc. wgts are frozen), 2- FT all layers
-#parser.add_argument('--pretr_dec', type=int, default=1)
+parser.add_argument('--pretr_dec', type=int, default=0)
 #FT on best val loss model (0) or last step model from training (1)
-#parser.add_argument('--load_model_type', type=int, default=1)
+parser.add_argument('--load_model_type', type=int, default=0)
 #Decoder Size: 0-small, 1-large
 #parser.add_argument('--dec_size', type=int, default=1)
 # 1 - crop + color aug. , 0 - for only color aug
@@ -109,7 +112,7 @@ parser.add_argument('--no_of_neg_regs_override', type=int, default=4)
 parser.add_argument('--bt_size', type=int,default=8)
 
 #no of iterations to run
-parser.add_argument('--n_iter', type=int, default=10001)
+parser.add_argument('--n_iter', type=int, default=10)
 
 parse_config = parser.parse_args()
 #parse_config = parser.parse_args(args=[])
@@ -184,7 +187,7 @@ save_dir=str(save_dir)+str(parse_config.pretr_no_of_tr_imgs)+'/'+str(parse_confi
 print('save dir ',save_dir)
 ######################################
 # Define Encoder(e) + g_1 network graph for pre-training
-tf.compat.v1.reset_default_graph()
+tf.reset_default_graph()
 print('cfg.temp_fac',parse_config.lr_reg,parse_config.temp_fac)
 ae = model.encoder_pretrain_net(learn_rate_seg=parse_config.lr_reg,temp_fac=parse_config.temp_fac, \
                         global_loss_exp_no=parse_config.global_loss_exp_no,n_parts=parse_config.n_parts)
@@ -194,18 +197,18 @@ mp_best=get_chkpt_file(save_dir)
 print('load last epoch model from pre-training')
 print('mp_best',mp_best)
 
-saver_rnet = tf.compat.v1.train.Saver()
-sess_rnet = tf.compat.v1.Session(config=config)
+saver_rnet = tf.train.Saver()
+sess_rnet = tf.Session(config=config)
 saver_rnet.restore(sess_rnet, mp_best)
 print("Model restored")
 
 #get all variable names and their values
 print('Loading trainable vars')
-variables_names = [v.name for v in tf.compat.v1.trainable_variables()]
+variables_names = [v.name for v in tf.trainable_variables()]
 var_values = sess_rnet.run(variables_names)
 sess_rnet.close()
 print('loaded encoder weight values from pre-trained model with global contrastive loss')
-#print(tf.compat.v1.trainable_variables())
+#print(tf.trainable_variables())
 ######################################
 
 ######################################
@@ -275,7 +278,7 @@ pathlib.Path(best_model_dir).mkdir(parents=True, exist_ok=True)
 
 ######################################
 # Define Encoder(e) + 'l' decoder blocks (d_l) + g_2 network graph for pre-training; l - no. of decoder blocks.
-tf.compat.v1.reset_default_graph()
+tf.reset_default_graph()
 ae = model.decoder_pretrain_net(learn_rate_seg=parse_config.lr_reg,temp_fac=parse_config.temp_fac, \
                              no_of_local_regions=parse_config.no_of_local_regions,no_of_decoder_blocks=parse_config.no_of_decoder_blocks, \
                              local_loss_exp_no=parse_config.local_loss_exp_no,local_reg_size=parse_config.local_reg_size,\
@@ -290,25 +293,25 @@ ae_rc = model.brit_cont_net(batch_size=cfg.batch_size_ft)
 
 ######################################
 #writer for train summary
-train_writer = tf.compat.v1.summary.FileWriter(logs_path)
+train_writer = tf.summary.FileWriter(logs_path)
 #writer for dice score and val summary
-#dsc_writer = tf.compat.v1.summary.FileWriter(logs_path)
-val_sum_writer = tf.compat.v1.summary.FileWriter(logs_path)
+#dsc_writer = tf.summary.FileWriter(logs_path)
+val_sum_writer = tf.summary.FileWriter(logs_path)
 ######################################
 
 ######################################
 # Define session and saver
-sess = tf.compat.v1.Session(config=config)
-sess.run(tf.compat.v1.global_variables_initializer())
-#saver = tf.compat.v1.train.Saver(tf.compat.v1.trainable_variables(),max_to_keep=2)
-saver = tf.compat.v1.train.Saver(max_to_keep=2)
+sess = tf.Session(config=config)
+sess.run(tf.global_variables_initializer())
+#saver = tf.train.Saver(tf.trainable_variables(),max_to_keep=2)
+saver = tf.train.Saver(max_to_keep=2)
 ######################################
 
 ######################################
 #  assign values to all trainable ops of network
 assign_op=[]
 print('Init of trainable vars')
-for new_var in tf.compat.v1.trainable_variables():
+for new_var in tf.trainable_variables():
     for var, var_val in zip(variables_names, var_values):
         if (str(var) == str(new_var.name) and ('reg_' not in str(new_var.name))):
             #print('match name',new_var.name,var)

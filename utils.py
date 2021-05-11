@@ -393,14 +393,13 @@ def get_chkpt_file(model_path,match_name='',min_ep=10):
 
     for dirName, subdirList, fileList in os.walk(model_path):
         fileList.sort()
-        #min_ep=10
-        #print(fileList)
+        min_ep=1
         for filename in fileList:
             if ".meta" in filename.lower():
                 numbers = re.findall('\d+',filename)
-                #print('model_path',model_path,filename)
-                #print('0',filename,numbers,numbers[0],min_ep)
-                #print('match name',match_name)
+                print('model_path',model_path,filename)
+                print('0',filename,numbers,numbers[0],min_ep)
+                print('match name',match_name)
                 if(isNotEmpty(match_name)):
                     if(match_name in filename and '00000-of-00001' not in filename and int(numbers[0])>min_ep):
                         print('1')
@@ -410,9 +409,7 @@ def get_chkpt_file(model_path,match_name='',min_ep=10):
                     print('2')
                     chkpt_max=os.path.join(dirName,filename)
                     min_ep=int(numbers[0])
-    #print(chkpt_max)
     fin_chkpt_max = re.sub('\.meta$', '', chkpt_max)
-    #print(fin_chkpt_max)
     return fin_chkpt_max
 
 def isNotEmpty(s):

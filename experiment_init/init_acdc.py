@@ -32,7 +32,7 @@ class_name='rv'
 #data paths
 ################################################################
 #validation_update_step to save values
-val_step_update=50
+val_step_update=5
 #base directory of the code
 base_dir='/usr/bmicnas01/data-biwi-01/krishnch/projects/self_tr/contrastive_lr/git_may24/'
 srt_dir='/usr/bmicnas01/data-biwi-01/krishnch/projects/self_tr/contrastive_lr/git_may24/'

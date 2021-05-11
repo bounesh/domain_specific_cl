@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as np
-tf.compat.v1.disable_eager_execution()
+# tf.disable_eager_execution()
 
 # Load layers and losses
 from layers_bn import layersObj
@@ -28,7 +28,7 @@ class modelObj:
     def conv_1hot(self):
         # To compute the 1-hot encoding of input mask to number of classes
         # placeholders for the network
-        y_tmp = tf.compat.v1.placeholder(tf.int32, shape=[None, self.img_size_x, self.img_size_y], name='y_tmp')
+        y_tmp = tf.placeholder(tf.int32, shape=[None, self.img_size_x, self.img_size_y], name='y_tmp')
 
         y_tmp_1hot = tf.one_hot(y_tmp,depth=self.num_classes)
         return {'y_tmp':y_tmp,'y_tmp_1hot':y_tmp_1hot}
@@ -37,9 +37,9 @@ class modelObj:
         # To apply random deformations on the input image and segmentation mask
 
         # placeholders for the network
-        x_tmp = tf.compat.v1.placeholder(tf.float32, shape=[batch_size, self.img_size_x, self.img_size_y, 1], name='x_tmp')
-        v_tmp = tf.compat.v1.placeholder(tf.float32, shape=[batch_size, self.img_size_x, self.img_size_y, 2], name='v_tmp')
-        y_tmp = tf.compat.v1.placeholder(tf.int32, shape=[batch_size, self.img_size_x, self.img_size_y], name='y_tmp')
+        x_tmp = tf.placeholder(tf.float32, shape=[batch_size, self.img_size_x, self.img_size_y, 1], name='x_tmp')
+        v_tmp = tf.placeholder(tf.float32, shape=[batch_size, self.img_size_x, self.img_size_y, 2], name='v_tmp')
+        y_tmp = tf.placeholder(tf.int32, shape=[batch_size, self.img_size_x, self.img_size_y], name='y_tmp')
 
         y_tmp_1hot = tf.one_hot(y_tmp,depth=self.num_classes)
         w_tmp = tf.contrib.image.dense_image_warp(image=x_tmp,flow=v_tmp,name='dense_image_warp_tmp')
@@ -51,7 +51,7 @@ class modelObj:
         # To apply random contrast and brightness (random intensity transformations) on the input image (Fine-training stage)
 
         # placeholders for the network
-        x_tmp = tf.compat.v1.placeholder(tf.float32, shape=[batch_size, self.img_size_x, self.img_size_y, 1], name='x_tmp')
+        x_tmp = tf.placeholder(tf.float32, shape=[batch_size, self.img_size_x, self.img_size_y, 1], name='x_tmp')
 
         rd_cont = tf.image.random_contrast(x_tmp,lower=0.8,upper=1.2,seed=1)
         rd_brit = tf.image.random_brightness(x_tmp,max_delta=0.1,seed=1)
@@ -65,7 +65,7 @@ class modelObj:
         # To apply random contrast and brightness (random intensity transformations) on the input image (Pre-training stages)
 
         # placeholders for the network
-        x_tmp = tf.compat.v1.placeholder(tf.float32, shape=[batch_size, self.img_size_x, self.img_size_y, 1], name='x_tmp')
+        x_tmp = tf.placeholder(tf.float32, shape=[batch_size, self.img_size_x, self.img_size_y, 1], name='x_tmp')
 
         # brightness + contrast changes final image
         rd_brit = tf.image.random_brightness(x_tmp,max_delta=0.3,seed=1)
@@ -143,8 +143,8 @@ class modelObj:
 
         ###################################
         # placeholders for the network Inputs
-        x = tf.compat.v1.placeholder(tf.float32, shape=[None, self.img_size_x, self.img_size_y, num_channels], name='x')
-        train_phase = tf.compat.v1.placeholder(tf.bool, name='train_phase')
+        x = tf.placeholder(tf.float32, shape=[None, self.img_size_x, self.img_size_y, num_channels], name='x')
+        train_phase = tf.placeholder(tf.bool, name='train_phase')
 
         ###################################
         # Last layer from Encoder network (e)
@@ -592,29 +592,29 @@ class modelObj:
 
         # var list of u-net (segmentation net)
         reg_net_vars = []
-        for v in tf.compat.v1.trainable_variables():
+        for v in tf.trainable_variables():
             var_name = v.name
             if 'enc_' in var_name: reg_net_vars.append(v)
             elif 'dec_' in var_name: reg_net_vars.append(v)
             elif 'reg_' in var_name: reg_net_vars.append(v)
         #print('var_list',reg_net_vars)
 
-        update_ops = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.UPDATE_OPS)
+        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         with tf.control_dependencies(update_ops):
             cost_reg=tf.reduce_mean(reg_cost)
-            optimizer_unet_reg = tf.compat.v1.train.AdamOptimizer(learn_rate_seg).minimize(cost_reg, var_list=reg_net_vars)
+            optimizer_unet_reg = tf.train.AdamOptimizer(learn_rate_seg).minimize(cost_reg, var_list=reg_net_vars)
 
         #accu= tf.metrics.accuracy(labels=y_l_onehot,predictions=seg_fin_layer)
 
-        seg_summary = tf.compat.v1.summary.scalar('reg_cost', tf.reduce_mean(reg_cost))
+        seg_summary = tf.summary.scalar('reg_cost', tf.reduce_mean(reg_cost))
         # Merge all the summaries and write them out to /tmp/mnist_logs (by default)
         # train_summary = tf.summary.merge([seg_summary])
         # train_summary = tf.summary.merge([seg_summary])
         # train_summary = "train summary placehold"
         train_summary = seg_summary
 
-        val_totalc = tf.compat.v1.placeholder(tf.float32, shape=[], name='val_totalc')
-        val_totalc_sum= tf.compat.v1.summary.scalar('val_totalc_', val_totalc)
+        val_totalc = tf.placeholder(tf.float32, shape=[], name='val_totalc')
+        val_totalc_sum= tf.summary.scalar('val_totalc_', val_totalc)
         # val_summary = tf.summary.merge([val_totalc_sum])
         # val_summary = tf.summary.merge([val_totalc_sum])
         # val_summary = tf.summary.merge([mean_dice_summary,val_totalc_sum])
@@ -644,12 +644,12 @@ class modelObj:
 
         # placeholders for the network
         # Inputs
-        x = tf.compat.v1.placeholder(tf.float32, shape=[None, self.img_size_x, self.img_size_y, num_channels], name='x')
+        x = tf.placeholder(tf.float32, shape=[None, self.img_size_x, self.img_size_y, num_channels], name='x')
         if(en_1hot==1):
-            y_l = tf.compat.v1.placeholder(tf.float32, shape=[None, self.img_size_x, self.img_size_y,self.num_classes], name='y_l')
+            y_l = tf.placeholder(tf.float32, shape=[None, self.img_size_x, self.img_size_y,self.num_classes], name='y_l')
         else:
-            y_l = tf.compat.v1.placeholder(tf.int32, shape=[None, self.img_size_x, self.img_size_y], name='y_l')
-        train_phase = tf.compat.v1.placeholder(tf.bool, name='train_phase')
+            y_l = tf.placeholder(tf.int32, shape=[None, self.img_size_x, self.img_size_y], name='y_l')
+        train_phase = tf.placeholder(tf.bool, name='train_phase')
 
         if(en_1hot==0):
             y_l_onehot=tf.one_hot(y_l,depth=self.num_classes)
@@ -733,41 +733,41 @@ class modelObj:
 
         # var list of u-net (segmentation net)
         all_net_vars = []
-        for v in tf.compat.v1.trainable_variables():
+        for v in tf.trainable_variables():
             var_name = v.name
             if 'enc_' in var_name: all_net_vars.append(v)
             elif 'dec_' in var_name: all_net_vars.append(v)
             elif 'seg_' in var_name: all_net_vars.append(v)
 
         dec_net_vars = []
-        for v in tf.compat.v1.trainable_variables():
+        for v in tf.trainable_variables():
             var_name = v.name
             if 'dec_' in var_name: dec_net_vars.append(v)
             if 'seg_' in var_name: dec_net_vars.append(v)
 
         seg_net_vars = []
-        for v in tf.compat.v1.trainable_variables():
+        for v in tf.trainable_variables():
             var_name = v.name
             if 'seg_' in var_name: seg_net_vars.append(v)
 
-        update_ops = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.UPDATE_OPS)
+        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         with tf.control_dependencies(update_ops):
             cost_seg=tf.reduce_mean(seg_cost)
 
-            optimizer_unet_seg = tf.compat.v1.train.AdamOptimizer(learning_rate=learn_rate_seg).minimize(cost_seg,var_list=seg_net_vars)
-            optimizer_unet_dec = tf.compat.v1.train.AdamOptimizer(learning_rate=learn_rate_seg).minimize(cost_seg,var_list=dec_net_vars)
-            optimizer_unet_all = tf.compat.v1.train.AdamOptimizer(learning_rate=learn_rate_seg).minimize(cost_seg,var_list=all_net_vars)
+            optimizer_unet_seg = tf.train.AdamOptimizer(learning_rate=learn_rate_seg).minimize(cost_seg,var_list=seg_net_vars)
+            optimizer_unet_dec = tf.train.AdamOptimizer(learning_rate=learn_rate_seg).minimize(cost_seg,var_list=dec_net_vars)
+            optimizer_unet_all = tf.train.AdamOptimizer(learning_rate=learn_rate_seg).minimize(cost_seg,var_list=all_net_vars)
 
-        seg_summary = tf.compat.v1.summary.scalar('seg_cost', tf.reduce_mean(seg_cost))
+        seg_summary = tf.summary.scalar('seg_cost', tf.reduce_mean(seg_cost))
         # Merge all the summaries and write them out to /tmp/mnist_logs (by default)
         train_summary = tf.summary.merge([seg_summary])
         # For dice score summary
 
-        mean_dice = tf.compat.v1.placeholder(tf.float32, shape=[], name='mean_dice')
-        mean_dice_summary = tf.compat.v1.summary.scalar('mean_val_dice', mean_dice)
+        mean_dice = tf.placeholder(tf.float32, shape=[], name='mean_dice')
+        mean_dice_summary = tf.summary.scalar('mean_val_dice', mean_dice)
 
-        val_totalc = tf.compat.v1.placeholder(tf.float32, shape=[], name='val_totalc')
-        val_totalc_sum= tf.compat.v1.summary.scalar('val_totalc_', val_totalc)
+        val_totalc = tf.placeholder(tf.float32, shape=[], name='val_totalc')
+        val_totalc_sum= tf.summary.scalar('val_totalc_', val_totalc)
         val_summary = tf.summary.merge([mean_dice_summary,val_totalc_sum])
 
         if(mtask_en==1):
@@ -793,8 +793,8 @@ class modelObj:
         num_channels=self.num_channels
         # placeholders for the network
         # Inputs
-        x = tf.compat.v1.placeholder(tf.float32, shape=[None, self.img_size_x, self.img_size_y, num_channels], name='x')
-        train_phase = tf.compat.v1.placeholder(tf.bool, name='train_phase')
+        x = tf.placeholder(tf.float32, shape=[None, self.img_size_x, self.img_size_y, num_channels], name='x')
+        train_phase = tf.placeholder(tf.bool, name='train_phase')
 
         ###################################
         # Encoder network
@@ -813,7 +813,9 @@ class modelObj:
         # each decoder level - one upsampling layer + one 2x2 conv op. + skip connection from encoder level + two 3x3 conv op.
 
         scale_fac=2
-        dec_c6_up = layers.upsample_layer(ip_layer=enc_c6_b, method=self.interp_val, scale_factor=int(scale_fac))
+        dim_list=[0,15/2,13/2]
+        # , scale_factor = int(scale_fac)
+        dec_c6_up = layers.upsample_layer(ip_layer=enc_c6_b, method=self.interp_val, dim_list=dim_list)
         #print('dec 2 large up',dec_c6_up)
         dec_dc6 = layers.conv2d_layer(ip_layer=dec_c6_up,name='dec_dc6', kernel_size=(fs_de,fs_de),num_filters=no_filters[5], use_relu=True, use_batch_norm=True, training_phase=train_phase)
         dec_cat_c6 = tf.concat((dec_dc6,enc_c5_b),axis=3,name='dec_cat_c6')
@@ -828,7 +830,7 @@ class modelObj:
 
             if(no_of_decoder_blocks>=2):
                 # No of decoder blocks =  2
-                dec_c5_up = layers.upsample_layer(ip_layer=dec_c5_b, method=self.interp_val,scale_factor=int(scale_fac))
+                dec_c5_up = layers.upsample_layer(ip_layer=dec_c5_b, method=self.interp_val,scale_factor=int(scale_fac), dim_list=[0,15,12.5])
                 dec_dc5 = layers.conv2d_layer(ip_layer=dec_c5_up, name='dec_dc5', kernel_size=(fs_de, fs_de),num_filters=no_filters[4], use_relu=True, use_batch_norm=True,training_phase=train_phase)
                 dec_cat_c5 = tf.concat((dec_dc5, enc_c4_b), axis=3, name='dec_cat_c5')
                 dec_c4_a = layers.conv2d_layer(ip_layer=dec_cat_c5, name='dec_c4_a', num_filters=no_filters[4],use_relu=True, use_batch_norm=True, training_phase=train_phase)
@@ -839,7 +841,7 @@ class modelObj:
 
                 if(no_of_decoder_blocks>=3):
                     # No of decoder blocks = 3
-                    dec_up4 = layers.upsample_layer(ip_layer=dec_c4_b, method=self.interp_val, scale_factor=scale_fac)
+                    dec_up4 = layers.upsample_layer(ip_layer=dec_c4_b, method=self.interp_val, scale_factor=scale_fac, dim_list=[0,30,49/2])
                     dec_dc4 = layers.conv2d_layer(ip_layer=dec_up4, name='dec_dc4', kernel_size=(fs_de, fs_de),num_filters=no_filters[3], use_relu=True, use_batch_norm=True,training_phase=train_phase)
                     dec_cat_c4 = tf.concat((dec_dc4, enc_c3_b), axis=3, name='dec_cat_c4')
                     dec_c3_a = layers.conv2d_layer(ip_layer=dec_cat_c4, name='dec_c3_a', num_filters=no_filters[3],use_relu=True, use_batch_norm=True, training_phase=train_phase)
@@ -1349,7 +1351,7 @@ class modelObj:
 
         # var list of decoder network (including g_2 - small network)
         dec_net_vars = []
-        for v in tf.compat.v1.trainable_variables():
+        for v in tf.trainable_variables():
             var_name = v.name
             if 'dec_' in var_name: dec_net_vars.append(v)
             if 'seg_' in var_name: dec_net_vars.append(v)
@@ -1357,20 +1359,20 @@ class modelObj:
         #print('dec_net_vars',dec_net_vars)
 
         if(inf==0):
-            update_ops = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.UPDATE_OPS)
+            update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
             with tf.control_dependencies(update_ops):
                 cost_net=tf.reduce_mean(net_local_loss)
 
-                optimizer_unet_dec = tf.compat.v1.train.AdamOptimizer(learning_rate=learn_rate_seg).minimize(cost_net,var_list=dec_net_vars)
-                #optimizer_unet_all = tf.compat.v1.train.AdamOptimizer(learning_rate=learn_rate_seg).minimize(cost_net,var_list=all_net_vars)
+                optimizer_unet_dec = tf.train.AdamOptimizer(learning_rate=learn_rate_seg).minimize(cost_net,var_list=dec_net_vars)
+                #optimizer_unet_all = tf.train.AdamOptimizer(learning_rate=learn_rate_seg).minimize(cost_net,var_list=all_net_vars)
                 #'optimizer_unet_all':optimizer_unet_all,
 
             # Merge all the summaries and write them out to logs
-            seg_summary = tf.compat.v1.summary.scalar('cost_net', tf.reduce_mean(cost_net))
+            seg_summary = tf.summary.scalar('cost_net', tf.reduce_mean(cost_net))
             train_summary = tf.summary.merge([seg_summary])
 
-            val_totalc = tf.compat.v1.placeholder(tf.float32, shape=[], name='val_totalc')
-            val_totalc_sum= tf.compat.v1.summary.scalar('val_totalc_', val_totalc)
+            val_totalc = tf.placeholder(tf.float32, shape=[], name='val_totalc')
+            val_totalc_sum= tf.summary.scalar('val_totalc_', val_totalc)
             val_summary = tf.summary.merge([val_totalc_sum])
 
         if(inf==1):

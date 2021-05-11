@@ -1,7 +1,10 @@
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 import os
 
 import tensorflow as tf
-config=tf.compat.v1.ConfigProto()
+config=tf.ConfigProto()
 config.gpu_options.allow_growth=True
 config.allow_soft_placement=True
 
@@ -38,7 +41,7 @@ parser.add_argument('--ver', type=int, default=0)
 parser.add_argument('--temp_fac', type=float, default=0.1)
 # bounding box dim - dimension of the cropped image. Ex. if bbox_dim=100, then 100 x 100 region is randomly cropped from original image of size W x W & then re-sized to W x W.
 # Later, these re-sized images are used for pre-training using global contrastive loss.
-parser.add_argument('--bbox_dim', type=int, default=100)
+parser.add_argument('--bbox_dim', type=int, default=150)
 
 # type of global_loss_exp_no for global contrastive loss - used to pre-train the Encoder (e)
 # 0 - G^{R}  - default loss formulation as in simCLR (sample images in a batch from all volumes)
@@ -49,7 +52,7 @@ parser.add_argument('--global_loss_exp_no', type=int, default=2)
 parser.add_argument('--n_parts', type=int, default=4)
 
 #no of iterations to run
-parser.add_argument('--n_iter', type=int, default=10001)
+parser.add_argument('--n_iter', type=int, default=10)
 
 #batch_size value - if global_loss_exp_no = 1, bt_size = 12; if global_loss_exp_no = 2, bt_size = 8
 parser.add_argument('--bt_size', type=int,default=8)
@@ -149,7 +152,7 @@ pathlib.Path(best_model_dir).mkdir(parents=True, exist_ok=True)
 
 ######################################
 # Define Encoder(e) + g_1 network graph for pre-training
-tf.compat.v1.reset_default_graph()
+tf.reset_default_graph()
 ae = model.encoder_pretrain_net(learn_rate_seg=parse_config.lr_reg,temp_fac=parse_config.temp_fac,\
                         global_loss_exp_no=parse_config.global_loss_exp_no,n_parts=parse_config.n_parts)
 
@@ -159,18 +162,18 @@ ae_rc = model.brit_cont_net(batch_size=cfg.batch_size_ft)
 
 ######################################
 #writer for train summary
-train_writer = tf.compat.v1.summary.FileWriter(logs_path)
+train_writer = tf.summary.FileWriter(logs_path)
 #writer for dice score and val summary
-#dsc_writer = tf.compat.v1.summary.FileWriter(logs_path)
-val_sum_writer = tf.compat.v1.summary.FileWriter(logs_path)
+#dsc_writer = tf.summary.FileWriter(logs_path)
+val_sum_writer = tf.summary.FileWriter(logs_path)
 ######################################
 
 ######################################
 # Define session and saver
-sess = tf.compat.v1.Session(config=config)
-sess.run(tf.compat.v1.global_variables_initializer())
-#saver = tf.compat.v1.train.Saver(tf.compat.v1.trainable_variables(),max_to_keep=2)
-saver = tf.compat.v1.train.Saver(max_to_keep=2)
+sess = tf.Session(config=config)
+sess.run(tf.global_variables_initializer())
+#saver = tf.train.Saver(tf.trainable_variables(),max_to_keep=2)
+saver = tf.train.Saver(max_to_keep=2)
 ######################################
 
 ######################################
