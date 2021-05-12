@@ -451,6 +451,7 @@ sess.close()
 
 ######################################
 # find best model checkpoint over all epochs and restore it
+print(save_dir)
 mp_best=get_max_chkpt_file(save_dir)
 print('mp_best',mp_best)
 
