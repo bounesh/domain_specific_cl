@@ -818,7 +818,7 @@ class modelObj:
         # each decoder level - one upsampling layer + one 2x2 conv op. + skip connection from encoder level + two 3x3 conv op.
 
         scale_fac=2
-        dim_list=[0,15/2,13/2]
+        dim_list=[0,40/2,15/2]
         # , scale_factor = int(scale_fac)
         # dec_c6_up = layers.upsample_layer(ip_layer=enc_c6_b, method=self.interp_val, dim_list=dim_list)
         dec_c6_up = layers.upsample_layer(ip_layer=enc_c6_b, method=self.interp_val)
