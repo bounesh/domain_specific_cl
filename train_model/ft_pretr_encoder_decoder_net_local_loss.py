@@ -349,7 +349,7 @@ train_list = data_list.train_data()
 #load saved training data in cropped dimensions directly
 print('load train volumes')
 # train_imgs, train_labels = dt.load_cropped_img_labels(train_list)
-train_imgs, train_labels, _, _ = dt.load_us_imgs(train_list)
+train_imgs, train_labels, _ = dt.load_us_imgs(train_list)
 
 #print('train shape',train_imgs.shape,train_labels.shape)
 

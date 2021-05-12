@@ -15,6 +15,9 @@ dataset_name='us'
 #Image Dimensions
 img_size_x = 240
 img_size_y = 193
+
+img_size_x = 640
+img_size_y = 240
 # Images dimensions in one-dimensional array
 img_size_flat = img_size_x * img_size_y
 # Number of colour channels for the images: 1 channel for gray-scale.

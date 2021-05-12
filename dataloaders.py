@@ -193,6 +193,7 @@ class dataloaderObj:
             pixel_size : pixel dimensions of the loaded image
             affine_tst : affine transformation matrix of the loaded image
         """
+        print(study_id_list)
         for study_id in study_id_list:
             img_path = str(self.data_path_tr) + '/Volumes/' + str(study_id) + '.nii.gz'
             seg_path = str(self.data_path_tr) + '/Segmentation-Inner/' + str(study_id) + '.nii.gz'
