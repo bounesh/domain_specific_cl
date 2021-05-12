@@ -355,7 +355,7 @@ def load_val_imgs(val_list,dt,orig_img_dt):
 
     return val_label_orig,val_img_list,val_label_list,pixel_val_list
 
-def get_max_chkpt_file(model_path,min_ep=10):
+def get_max_chkpt_file(model_path,min_ep=0):
     '''
     To return the checkpoint file that yielded the best dsc value/lowest loss value on val images
     input params:
@@ -375,7 +375,7 @@ def get_max_chkpt_file(model_path,min_ep=10):
                     tmp_ep_no=int(numbers[1])
                 else:
                     tmp_ep_no=int(numbers[0])
-                if(tmp_ep_no>min_ep):
+                if(tmp_ep_no>=min_ep):
                     chkpt_max=os.path.join(dirName,filename)
                     min_ep=tmp_ep_no
     fin_chkpt_max = re.sub('\.meta$', '', chkpt_max)
@@ -624,7 +624,7 @@ def create_rand_augs(cfg,parse_config,sess,df_ae_rd,df_ae_ri,ld_img_batch,ld_lab
             ld_img_batch: images applied with deformation fields / intensity transformations / both
             ld_label_batch_1hot: masks with same deformation fields / intensity transformations / both as applied on respective images
     '''
-    print("LD_IMG_BATCH SHAPE:",ld_img_batch.shape())
+    # print("LD_IMG_BATCH SHAPE:",ld_img_batch.shape)
     batch_size=ld_img_batch.shape[0]
     #calc random deformation fields
     rand_deform_v = calc_deform(cfg,batch_size,0,parse_config.sigma)

@@ -8,7 +8,8 @@ def pretrain_data():
     labeled_id_list=["01"]
     return labeled_id_list
 def val_data():
-    val_list=["16-2","16-4","16-5"]
+    # val_list=["16-2","16-4","16-5"]
+    val_list=["16-2"]
     return val_list
 def test_data():
     test_list=["16-2","16-4","16-5"]
