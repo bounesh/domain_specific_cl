@@ -13,8 +13,8 @@ interp_val=1 # 0 - bilinear interpolation; 1- nearest neighbour interpolation
 #Name of dataset
 dataset_name='us'
 #Image Dimensions
-img_size_x = 240
-img_size_y = 193
+# img_size_x = 240
+# img_size_y = 193
 
 img_size_x = 640
 img_size_y = 240

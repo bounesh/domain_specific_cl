@@ -624,6 +624,7 @@ def create_rand_augs(cfg,parse_config,sess,df_ae_rd,df_ae_ri,ld_img_batch,ld_lab
             ld_img_batch: images applied with deformation fields / intensity transformations / both
             ld_label_batch_1hot: masks with same deformation fields / intensity transformations / both as applied on respective images
     '''
+    print("LD_IMG_BATCH SHAPE:",ld_img_batch.shape())
     batch_size=ld_img_batch.shape[0]
     #calc random deformation fields
     rand_deform_v = calc_deform(cfg,batch_size,0,parse_config.sigma)
